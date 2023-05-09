@@ -70,7 +70,12 @@ class CountryService {
     let countryTemp;
     const countries = await findService.find(url);
     for (let i = 0; i < countries.length; i++) {
-      countryTemp = await this.findOneByName(countries[i].name);
+      try {
+        countryTemp = await this.findOneByName(countries[i].name);
+      } catch (error) {
+        await this.create(countries[i]);
+      }
+
       if (countryTemp) {
         await countryTemp.update({
           points: countries[i].points,
