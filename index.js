@@ -17,14 +17,7 @@ const {
 app.use(express.json());
 app.use(cors());
 app.get('/', (req, res) => {
-  const bearer = jsonwebtoken.sign(
-    { auth: `${config.authp}` },
-    `${config.pkey}`,
-    {
-      expiresIn: '20m',
-    }
-  );
-  res.send(bearer);
+  res.send('Hola');
 });
 
 routerApi(app);
