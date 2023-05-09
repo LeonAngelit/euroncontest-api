@@ -16,7 +16,7 @@
   "crons": [
     {
       "path": "/refresh/2023",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
