@@ -66,9 +66,9 @@ router.post(
 
 router.get('/:id/stream', async (req, res) => {
   res.writeHead(200, {
+    'Access-Control-Allow-Origin': '*',
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Access-Control-Allow-Origin': '*',
     Connection: 'keep-alive',
   });
 
