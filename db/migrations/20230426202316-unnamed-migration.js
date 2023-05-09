@@ -67,7 +67,7 @@ module.exports = {
     await queryInterface.createTable(UPDATABLE_TABLE, UpdatableSchema);
     await queryInterface.createTable(USER_TABLE, UserSchema);
     await queryInterface.createTable(ROOM_TABLE, RoomSchema);
-    // await countryService.initialize('2022');
+    await countryService.initialize('2023');
     await updatableService.initialize();
     await queryInterface.createTable(ROOM_USER_TABLE, RoomUserSchema);
     await queryInterface.createTable(USER_COUNTRY_TABLE, UserCountrySchema);
