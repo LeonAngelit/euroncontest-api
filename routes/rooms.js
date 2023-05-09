@@ -1,8 +1,9 @@
 const express = require('express');
 const RoomService = require('../services/rooms.service');
+const CountryService = require('../services/countries.service');
 const router = express.Router();
 const service = new RoomService();
-const countryService = new CountryService();
+const cService = new CountryService();
 const validatorHandler = require('../midlewares/validator.handler');
 const { jwtAuth } = require('../midlewares/auth.handler');
 const {
@@ -12,8 +13,6 @@ const {
   getRoomByNameSchema,
   addUserSchema,
 } = require('./../schemas/room.schema');
-const { notFound } = require('@hapi/boom');
-const CountryService = require('../services/countries.service');
 
 router.get('/', jwtAuth('headers'), async (req, res) => {
   const rooms = await service.find();
@@ -73,7 +72,7 @@ router.get('/:id/stream', async (req, res) => {
   });
 
   async function find() {
-    await countryService.refresh('2023');
+    await cService.refresh('2023');
     const room = await service.findOne(id);
     res.write(`data: ${JSON.stringify(room)}\n\n`);
   }
