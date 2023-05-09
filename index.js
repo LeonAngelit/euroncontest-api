@@ -2,11 +2,8 @@ const express = require('express');
 const routerApi = require('./routes/index');
 const cors = require('cors');
 require('dotenv').config();
-const jsonwebtoken = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 3020;
-const config = require('./config/config');
-
 const {
   logErrors,
   errorHandler,
