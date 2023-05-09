@@ -1,0 +1,38 @@
+const express = require('express');
+const routerApi = require('./routes/index');
+const cors = require('cors');
+require('dotenv').config();
+const jsonwebtoken = require('jsonwebtoken');
+const app = express();
+const port = process.env.PORT || 3020;
+const config = require('./config/config');
+
+const {
+  logErrors,
+  errorHandler,
+  boomErrorHandler,
+  sequelizeError,
+} = require('./midlewares/error.handler');
+
+app.use(express.json());
+app.use(cors());
+app.get('/', (req, res) => {
+  const bearer = jsonwebtoken.sign(
+    { auth: `${config.authp}` },
+    `${config.pkey}`,
+    {
+      expiresIn: '20m',
+    }
+  );
+  res.send(bearer);
+});
+
+routerApi(app);
+app.use(logErrors);
+app.use(boomErrorHandler);
+app.use(sequelizeError);
+app.use(errorHandler);
+
+app.listen(port, () => {
+  console.log('My port' + port);
+});
