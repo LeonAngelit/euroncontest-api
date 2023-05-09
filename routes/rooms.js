@@ -65,13 +65,6 @@ router.post(
 );
 
 router.get('/:id/stream', async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-Requested-With,content-type'
-  );
-
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -79,6 +72,12 @@ router.get('/:id/stream', async (req, res) => {
   });
 
   async function find() {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'X-Requested-With,content-type'
+    );
     await cService.refresh('2023');
     const room = await service.findOne(id);
     res.write(`data: ${JSON.stringify(room)}\n\n`);
