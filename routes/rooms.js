@@ -64,7 +64,7 @@ router.post(
   }
 );
 
-router.get('/:id/stream', wtAuth('headers'), async (req, res) => {
+router.get('/:id/stream', async (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
