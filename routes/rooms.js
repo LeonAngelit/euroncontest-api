@@ -1,9 +1,7 @@
 const express = require('express');
 const RoomService = require('../services/rooms.service');
-const CountryService = require('../services/countries.service');
 const router = express.Router();
 const service = new RoomService();
-const cService = new CountryService();
 const validatorHandler = require('../midlewares/validator.handler');
 const { jwtAuth } = require('../midlewares/auth.handler');
 const {
@@ -78,10 +76,8 @@ router.get('/:id/stream', async (req, res) => {
 
   const { id } = req.params;
   const interval = setInterval(() => {
-    /* const data = service.findOne(id); // your function to get data from the database
-    res.write(`data: ${JSON.stringify(data)}\n\n`);*/
     find();
-  }, 90000);
+  }, 60000);
 
   req.on('close', () => {
     clearInterval(interval);
