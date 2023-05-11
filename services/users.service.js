@@ -53,14 +53,13 @@ class UserService {
     const userCountryAdded = await models.UserCountry.findAll({
       where: { userId: data.userId },
     });
-    isUserCountryAdded = userCountryAdded.length >= 5;
+    isUserCountryAdded = userCountryAdded.length == 5;
     const isUpdatable = await models.Updatable.findByPk(1);
     if (isUserCountryAdded && !isUpdatable.updatable) {
       throw boom.unauthorized(
         'Actualmente no se pueden actualizar las opciones, mucha suerte!'
       );
     } else {
-      if (isUserCountryAdded) {
         await models.UserCountry.destroy({
           where: { userId: data.userId },
         });
