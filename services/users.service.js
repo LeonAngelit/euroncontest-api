@@ -19,6 +19,9 @@ class UserService {
   async bulkAddCountry(data) {
     let response = [];
     let temp;
+    await models.UserCountry.destroy({
+      where: { userId: data.userId },
+    });
     if (data.selection.length == 5) {
       for (let i = 0; i < data.selection.length; i++) {
         if (i == 0) {
@@ -53,50 +56,55 @@ class UserService {
     const userCountryAdded = await models.UserCountry.findAll({
       where: { userId: data.userId },
     });
-    isUserCountryAdded = userCountryAdded.length == 5;
+    isUserCountryAdded = userCountryAdded.length >= 5;
     const isUpdatable = await models.Updatable.findByPk(1);
     if (isUserCountryAdded && !isUpdatable.updatable) {
       throw boom.unauthorized(
         'Actualmente no se pueden actualizar las opciones, mucha suerte!'
       );
     } else {
-      await models.UserCountry.destroy({
-        where: { userId: data.userId },
-      });
-    }
-
-    try {
-      if (data.winnerOption) {
-        const winnerOption = await models.UserCountry.findOne({
-          where: {
-            userId: data.userId,
-            winnerOption: true,
-          },
+      if (isUserCountryAdded) {
+        await models.UserCountry.destroy({
+          where: { userId: data.userId },
         });
-        if (winnerOption) {
-          throw boom.unauthorized(
-            'No se puede tener más de una opción ganadora'
-          );
-        }
       }
-      const newUserCountry = await models.UserCountry.create(data);
-      const user = await models.User.findByPk(newUserCountry.userId, {
-        attributes: { exclude: ['password'] },
-      });
-      const country = await models.Country.findByPk(newUserCountry.countryId, {
-        through: {
-          attributes: [], // exclude the join table columns
-        },
-        attributes: {
-          exclude: ['link'],
-        },
-      });
-      response = {
-        user,
-        country,
-      };
-    } catch (error) {
-      return error;
+
+      try {
+        if (data.winnerOption) {
+          const winnerOption = await models.UserCountry.findOne({
+            where: {
+              userId: data.userId,
+              winnerOption: true,
+            },
+          });
+          if (winnerOption) {
+            throw boom.unauthorized(
+              'No se puede tener más de una opción ganadora'
+            );
+          }
+        }
+        const newUserCountry = await models.UserCountry.create(data);
+        const user = await models.User.findByPk(newUserCountry.userId, {
+          attributes: { exclude: ['password'] },
+        });
+        const country = await models.Country.findByPk(
+          newUserCountry.countryId,
+          {
+            through: {
+              attributes: [], // exclude the join table columns
+            },
+            attributes: {
+              exclude: ['link'],
+            },
+          }
+        );
+        response = {
+          user,
+          country,
+        };
+      } catch (error) {
+        return error;
+      }
     }
 
     return response;
