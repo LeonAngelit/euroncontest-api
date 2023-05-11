@@ -19,23 +19,32 @@ class UserService {
   async bulkAddCountry(data) {
     let response = [];
     let temp;
-    for (let i = 0; i < data.selection.length; i++) {
-      if (i == 0) {
-        temp = await this.addCountry({
-          userId: data.userId,
-          countryId: data.selection[i],
-          winnerOption: true,
-        });
-      } else {
-        temp = await this.addCountry({
-          userId: data.userId,
-          countryId: data.selection[i],
-        });
+    if (data.selection.length == 5) {
+      for (let i = 0; i < data.selection.length; i++) {
+        if (i == 0) {
+          temp = await this.addCountry({
+            userId: data.userId,
+            countryId: data.selection[i],
+            winnerOption: true,
+          });
+        } else {
+          temp = await this.addCountry({
+            userId: data.userId,
+            countryId: data.selection[i],
+          });
+        }
+        response.push(temp);
       }
-      response.push(temp);
+      if (response.length == 5) {
+        return response;
+      } else {
+        throw boom.expectationFailed(
+          'No se han procesado los 5 países elegidos'
+        );
+      }
+    } else {
+      throw boom.badRequest('No se han procesado los 5 países elegidos');
     }
-
-    return response;
   }
 
   async addCountry(data) {
