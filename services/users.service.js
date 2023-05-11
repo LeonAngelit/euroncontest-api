@@ -60,47 +60,43 @@ class UserService {
         'Actualmente no se pueden actualizar las opciones, mucha suerte!'
       );
     } else {
-        await models.UserCountry.destroy({
-          where: { userId: data.userId },
-        });
-      }
+      await models.UserCountry.destroy({
+        where: { userId: data.userId },
+      });
+    }
 
-      try {
-        if (data.winnerOption) {
-          const winnerOption = await models.UserCountry.findOne({
-            where: {
-              userId: data.userId,
-              winnerOption: true,
-            },
-          });
-          if (winnerOption) {
-            throw boom.unauthorized(
-              'No se puede tener más de una opción ganadora'
-            );
-          }
-        }
-        const newUserCountry = await models.UserCountry.create(data);
-        const user = await models.User.findByPk(newUserCountry.userId, {
-          attributes: { exclude: ['password'] },
+    try {
+      if (data.winnerOption) {
+        const winnerOption = await models.UserCountry.findOne({
+          where: {
+            userId: data.userId,
+            winnerOption: true,
+          },
         });
-        const country = await models.Country.findByPk(
-          newUserCountry.countryId,
-          {
-            through: {
-              attributes: [], // exclude the join table columns
-            },
-            attributes: {
-              exclude: ['link'],
-            },
-          }
-        );
-        response = {
-          user,
-          country,
-        };
-      } catch (error) {
-        return error;
+        if (winnerOption) {
+          throw boom.unauthorized(
+            'No se puede tener más de una opción ganadora'
+          );
+        }
       }
+      const newUserCountry = await models.UserCountry.create(data);
+      const user = await models.User.findByPk(newUserCountry.userId, {
+        attributes: { exclude: ['password'] },
+      });
+      const country = await models.Country.findByPk(newUserCountry.countryId, {
+        through: {
+          attributes: [], // exclude the join table columns
+        },
+        attributes: {
+          exclude: ['link'],
+        },
+      });
+      response = {
+        user,
+        country,
+      };
+    } catch (error) {
+      return error;
     }
 
     return response;
