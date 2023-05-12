@@ -14,6 +14,7 @@ const createUserSchema = Joi.object({
 });
 
 const updateUserSchema = Joi.object({
+  username: name,
   password: password,
   token: token,
   color: color,
