@@ -223,7 +223,49 @@ class UserService {
   }
 
   async update(id, data) {
-    const user = await models.User.findOne({ where: { id: id } });
+    const user = await models.User.findOne(
+      { where: { id: id } },
+      {
+        include: [
+          {
+            model: models.Country,
+            as: 'countries',
+            through: {
+              attributes: [], // exclude the join table columns
+            },
+            attributes: {
+              exclude: ['link', 'code', 'song', 'position', 'points'],
+            },
+          },
+          {
+            model: models.Room,
+            as: 'rooms',
+            through: {
+              attributes: [], // exclude the join table columns
+            },
+            include: [
+              {
+                model: models.User,
+                as: 'users',
+                through: {
+                  attributes: [], // exclude the join table columns
+                },
+                include: [
+                  {
+                    model: models.Country,
+                    as: 'countries',
+                    attributes: { exclude: ['link'] },
+                  },
+                ],
+                attributes: { exclude: ['password', 'token'] },
+              },
+            ],
+            attributes: { exclude: ['password'] },
+          },
+        ],
+        attributes: { exclude: ['password', 'color', 'image'] },
+      }
+    );
     const rta = await user.update(data);
     return rta;
   }
