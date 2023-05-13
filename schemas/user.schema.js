@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { config } = require('../config/config');
+const config = require('../config/config');
 
 const regexPass = config.passwordRegex;
 const userNameRegex = config.nombreUsuarioRegex;
