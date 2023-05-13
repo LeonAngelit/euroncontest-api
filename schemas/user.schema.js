@@ -1,8 +1,12 @@
 const Joi = require('joi');
+const { config } = require('../config/config');
+
+const regexPass = config.passwordRegex;
+const userNameRegex = config.nombreUsuarioRegex;
 
 const id = Joi.number();
-const name = Joi.string().min(3).max(30);
-const password = Joi.string().min(8);
+const name = Joi.string().regex(userNameRegex);
+const password = Joi.string().regex(regexPass);
 const token = Joi.string().min(8);
 const winnerOption = Joi.boolean();
 const selection = Joi.array();

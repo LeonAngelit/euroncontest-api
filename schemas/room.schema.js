@@ -1,8 +1,12 @@
+const { config } = require('../config/config');
 const Joi = require('joi');
 
+const regexPass = config.passwordRegex;
+const regexRoomName = config.nombreUsuarioRegex;
+
 const id = Joi.number().integer();
-const name = Joi.string().min(3).max(30);
-const password = Joi.string().min(8);
+const name = Joi.string().regex(regexRoomName);
+const password = Joi.string().regex(regexPass);
 
 const createRoomSchema = Joi.object({
   name: name.required(),

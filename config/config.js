@@ -12,6 +12,9 @@ const config = {
   dbUrl: process.env.DATABASE_URL,
   pkey: process.env.P_KEY,
   authp: process.env.AUTH_P,
+  nombreUsuarioRegex:
+    /^(?=.{5,25}$)[a-zA-ZáéíóúüñÁÉÍÓÚÑ0-9_]+(?:[\s][a-zA-ZáéíóúüñÁÉÍÓÚÑ0-9]+)*$/,
+  passwordRegex: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/,
 };
 
 module.exports = config;
