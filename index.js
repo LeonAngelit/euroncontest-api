@@ -1,7 +1,9 @@
 const express = require('express');
 const routerApi = require('./routes/index');
 const cors = require('cors');
+const CountryService = require('./services/countries.service');
 require('dotenv').config();
+const service = new CountryService();
 const app = express();
 const port = process.env.PORT || 3020;
 const {
@@ -14,7 +16,8 @@ const {
 app.use(express.json());
 app.use(cors());
 app.get('/', (req, res) => {
-  res.send('Hola');
+  service.refresh('2023');
+  service.res.send('Hola');
 });
 
 routerApi(app);
