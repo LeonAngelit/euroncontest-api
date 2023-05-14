@@ -67,11 +67,11 @@ class CountryService {
     }
     if (year == '2022') url = process.env.URL_2022;
     if (year == '2023') url = process.env.URL_2023;
-    let countryTemp;
+
     const countries = await findService.find(url);
     for (let i = 0; i < countries.length; i++) {
       try {
-        countryTemp = await this.findOneByName(countries[i].name);
+        const countryTemp = await this.findOneByName(countries[i].name);
         this.update(countryTemp.id, {
           position: countries[i].position,
           points: countries[i].points,

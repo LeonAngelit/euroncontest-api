@@ -52,7 +52,7 @@ DECLARE
   row_count INTEGER;
 BEGIN
   SELECT COUNT(*) INTO row_count FROM countries;
-  RETURN row_count < 26;
+  RETURN row_count <= 26;
 END;
 $$ LANGUAGE plpgsql;
 

@@ -16,7 +16,6 @@ const {
 app.use(express.json());
 app.use(cors());
 app.get('/', (req, res) => {
-  service.refresh('2023');
   service.res.send('Hola');
 });
 
