@@ -72,16 +72,12 @@ class CountryService {
     for (let i = 0; i < countries.length; i++) {
       try {
         countryTemp = await this.findOneByName(countries[i].name);
-      } catch (error) {
-        await this.create(countries[i]);
-      }
-
-      if (countryTemp) {
-        await countryTemp.update({
+        this.update(countryTemp.id, {
+          position: countries[i].position,
           points: countries[i].points,
         });
-      } else {
-        await this.create(countries[i]);
+      } catch (error) {
+        console.log(error);
       }
     }
   }
