@@ -21,7 +21,7 @@ class CountryService {
 	async findOne(id) {
 		const country = await models.Country.findByPk(id);
 		if (!country) {
-			throw boom.notFound("Country not found");
+			throw boom.notFound("Product not found");
 		}
 		return country;
 	}
@@ -29,7 +29,7 @@ class CountryService {
 	async findOneByName(name) {
 		const country = await models.Country.findOne({ where: { name: name } });
 		if (!country) {
-			throw boom.notFound("Country not found");
+			throw boom.notFound("Product not found");
 		}
 		return country;
 	}
@@ -50,8 +50,8 @@ class CountryService {
 		await models.Country.truncate();
 		let url;
 		if (parseInt(year) < 2022) {
-			throw boom.notFound("Year not found");
-		}
+				throw boom.notFound("Year not found");
+			}
 		if (year == "2022") url = process.env.URL_2022;
 		if (year == "2023") url = process.env.URL_2023;
 		if (year == "2024") url = process.env.URL_2024;
