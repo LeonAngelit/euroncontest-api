@@ -49,7 +49,7 @@ class CountryService {
 	async initialize(year) {
 		await models.Country.truncate();
 		let url;
-		if (year != "2022" && year != "2023") {
+		if (parseInt(year) < 2024) {
 			throw boom.notFound("Year not found");
 		}
 		if (year == "2022") url = process.env.URL_2022;
@@ -63,7 +63,7 @@ class CountryService {
 
 	async refresh(year) {
 		let url;
-		if (year != "2022" && year != "2023") {
+		if (parseInt(year) < 2024) {
 			throw boom.notFound("Year not found");
 		}
 		if (year == "2022") url = process.env.URL_2022;

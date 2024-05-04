@@ -14,7 +14,7 @@ const {
 app.use(express.json());
 app.use(cors());
 app.get('/', (req, res) => {
-  service.res.send('Hola mundo');
+  res.send('Hola mundo');
 });
 
 routerApi(app);

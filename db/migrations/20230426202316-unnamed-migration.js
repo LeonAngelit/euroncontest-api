@@ -59,7 +59,7 @@ $$ LANGUAGE plpgsql;
 ALTER TABLE countries ADD CONSTRAINT max_songs CHECK (max_songs_constraint());`;
 
 const drop_constraint = `DROP FUNCTION max_users_constraint(); DROP FUNCTION max_rooms_constraint(); DROP FUNCTION max_songs_constraint();`;
-
+const d = new Date();
 module.exports = {
   async up(queryInterface) {
     await queryInterface.dropAllTables();
@@ -67,7 +67,7 @@ module.exports = {
     await queryInterface.createTable(UPDATABLE_TABLE, UpdatableSchema);
     await queryInterface.createTable(USER_TABLE, UserSchema);
     await queryInterface.createTable(ROOM_TABLE, RoomSchema);
-    await countryService.initialize('2023');
+    await countryService.initialize(`${d.getFullYear()}`);
     await updatableService.initialize();
     await queryInterface.createTable(ROOM_USER_TABLE, RoomUserSchema);
     await queryInterface.createTable(USER_COUNTRY_TABLE, UserCountrySchema);
