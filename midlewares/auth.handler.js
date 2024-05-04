@@ -11,10 +11,10 @@ function jwtAuth(property) {
 		console.log(conf.pkey);
 		jwt.verify(data, conf.pkey, function (err, decoded) {
 			if (err) {
-				next(boom.unauthorized("bla"));
+				next(boom.unauthorized("Unathorized"));
 			}
 			if (!(decoded.auth == `${conf.authp}`)) {
-				next(boom.unauthorized("bla bla"));
+				next(boom.unauthorized("Unathorized"));
 			}
 		});
 		next();
@@ -25,7 +25,7 @@ function headerAuth(property) {
 	return (req, res, next) => {
 		const data = req[property].authorization;
 		if (!bcrypt.compareSync(config.authp, data)) {
-			next(boom.unauthorized("bla bla bla"));
+			next(boom.unauthorized("Unathorized"));
 		}
 		next();
 	};
