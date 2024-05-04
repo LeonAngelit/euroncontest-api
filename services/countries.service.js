@@ -49,9 +49,9 @@ class CountryService {
 	async initialize(year) {
 		await models.Country.truncate();
 		let url;
-		if (year != "2022" && year != "2023") {
-			throw boom.notFound("Year not found");
-		}
+		if (parseInt(year) < 2022) {
+				throw boom.notFound("Year not found");
+			}
 		if (year == "2022") url = process.env.URL_2022;
 		if (year == "2023") url = process.env.URL_2023;
 		if (year == "2024") url = process.env.URL_2024;
@@ -63,7 +63,7 @@ class CountryService {
 
 	async refresh(year) {
 		let url;
-		if (year != "2022" && year != "2023") {
+		if (parseInt(year) < 2022) {
 			throw boom.notFound("Year not found");
 		}
 		if (year == "2022") url = process.env.URL_2022;
