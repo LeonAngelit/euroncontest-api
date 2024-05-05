@@ -40,6 +40,12 @@ class CountryService {
 		return rta;
 	}
 
+	async updateByName(name, data) {
+		const country = await this.findOneByName(name);
+		const rta = await country.update(data);
+		return rta;
+	}
+
 	async delete(id) {
 		const country = await this.findOne(id);
 		country.destroy();
@@ -49,12 +55,15 @@ class CountryService {
 	async initialize(year) {
 		await models.Country.truncate();
 		let url;
-		if (parseInt(year) < 2024) {
+		if (parseInt(year) < 2022) {
 			throw boom.notFound("Year not found");
 		}
-		if (year == "2022") url = process.env.URL_2022;
-		if (year == "2023") url = process.env.URL_2023;
-		if (year == "2024") url = process.env.URL_2024;
+		url =
+			process.env.BASE_URL +
+			`${
+				(year - process.env.FIRST_YEAR) * 10 +
+				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			}.js`;
 		const countries = await findService.find(url);
 		for (let i = 0; i < countries.length; i++) {
 			await this.create(countries[i]);
@@ -63,12 +72,15 @@ class CountryService {
 
 	async refresh(year) {
 		let url;
-		if (parseInt(year) < 2024) {
+		if (parseInt(year) < 2022) {
 			throw boom.notFound("Year not found");
 		}
-		if (year == "2022") url = process.env.URL_2022;
-		if (year == "2023") url = process.env.URL_2023;
-		if (year == "2024") url = process.env.URL_2024;
+		url =
+			process.env.BASE_URL +
+			`${
+				(year - process.env.FIRST_YEAR) * 10 +
+				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			}.js`;
 		const countries = await findService.find(url);
 		for (let i = 0; i < countries.length; i++) {
 			try {
@@ -76,6 +88,34 @@ class CountryService {
 				this.update(countryTemp.id, {
 					position: countries[i].position,
 					points: countries[i].points,
+				});
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	}
+
+	async updateLinks(year) {
+		let url;
+		if (parseInt(year) < 2022) {
+			throw boom.notFound("Year not found");
+		}
+		url =
+			process.env.BASE_URL +
+			`${
+				(year - process.env.FIRST_YEAR) * 10 +
+				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			}.js`;
+		const countries = await findService.find(url);
+		const links = await findService.findLinks(
+			process.env.URL_VIDEOS,
+			countries
+		);
+		for (let i = 0; i < countries.length; i++) {
+			try {
+				const countryTemp = await this.findOneByName(countries[i].name);
+				this.updateByName(countryTemp.name, {
+					link: links[countries[i].name],
 				});
 			} catch (error) {
 				console.log(error);
