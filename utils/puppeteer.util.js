@@ -1,6 +1,6 @@
 const COUNTRIES_DETAILS = require("../dictionaries/countries");
 const boom = require("@hapi/boom");
-const puppeteer = require("puppeteer-core");
+const puppeteer = require("puppeteer");
 const edgeChromium = require("chrome-aws-lambda");
 //Creamos la clase que instanciaremos en el archivo courses.js
 class PuppeteerService {
@@ -145,7 +145,7 @@ class PuppeteerService {
 		//Lanzamos el navegador, la opción no sandbox era necesaria para habilitar puppeteer en la app en heroku
 		let browser = await puppeteer.launch({
 			executablePath,
-			headless: true,
+			headless: "shell",
 			args: edgeChromium.args,
 			ignoreHTTPSErrors: true,
 		});
@@ -159,7 +159,7 @@ class PuppeteerService {
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
 		);
 		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`);
+		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
 		await browser.close();
 	}
 }
