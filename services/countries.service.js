@@ -70,6 +70,21 @@ class CountryService {
 		}
 	}
 
+	async getUpdate(year) {
+		let url;
+		if (parseInt(year) < 2022) {
+			throw boom.notFound("Year not found");
+		}
+		url =
+			process.env.BASE_URL +
+			`${
+				(year - process.env.FIRST_YEAR) * 10 +
+				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			}.js`;
+		const countries = await findService.find(url);
+		return countries;
+	}
+
 	async refresh(year) {
 		let url;
 		if (parseInt(year) < 2022) {
