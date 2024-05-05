@@ -1,7 +1,7 @@
 const COUNTRIES_DETAILS = require("../dictionaries/countries");
 const boom = require("@hapi/boom");
 const puppeteer = require("puppeteer-core");
-const edgeChromium = require("chrome-aws-lambda");
+const edgeChromium = require("@sparticuz/chromium");
 //Creamos la clase que instanciaremos en el archivo courses.js
 class PuppeteerService {
 	constructor() {
@@ -13,12 +13,12 @@ class PuppeteerService {
 
 	//Pasamos la url y el nombre de usuario como parámetros
 	async #getCountries(url) {
-		const executablePath = await edgeChromium.executablePath;
+		const executablePath = await edgeChromium.executablePath();
 		let browser = await puppeteer.launch({
-			executablePath,
-			headless: true,
 			args: edgeChromium.args,
-			ignoreHTTPSErrors: true,
+			defaultViewport: edgeChromium.defaultViewport,
+			executablePath,
+			headless: edgeChromium.headless,
 		});
 		let page = await browser.newPage();
 		await page.setExtraHTTPHeaders({
@@ -77,13 +77,13 @@ class PuppeteerService {
 		}
 	}
 	async #getLinks(url, countries) {
-		const executablePath = await edgeChromium.executablePath;
+		const executablePath = await edgeChromium.executablePath();
 		//Lanzamos el navegador, la opción no sandbox era necesaria para habilitar puppeteer en la app en heroku
 		let browser = await puppeteer.launch({
-			executablePath,
-			headless: true,
 			args: edgeChromium.args,
-			ignoreHTTPSErrors: true,
+			defaultViewport: edgeChromium.defaultViewport,
+			executablePath,
+			headless: edgeChromium.headless,
 		});
 		let page = await browser.newPage();
 		await page.setExtraHTTPHeaders({
@@ -140,12 +140,12 @@ class PuppeteerService {
 		return this.#getLinks(url, countries);
 	}
 	async open(url) {
-		const executablePath = await edgeChromium.executablePath;
+		const executablePath = await edgeChromium.executablePath();
 		let browser = await puppeteer.launch({
-			executablePath,
-			headless: true,
 			args: edgeChromium.args,
-			ignoreHTTPSErrors: true,
+			defaultViewport: edgeChromium.defaultViewport,
+			executablePath,
+			headless: edgeChromium.headless,
 		});
 		let page = await browser.newPage();
 		await page.setExtraHTTPHeaders({
