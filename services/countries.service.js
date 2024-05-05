@@ -1,4 +1,5 @@
 const boom = require("@hapi/boom");
+const { response } = require("express");
 const { models } = require("../lib/sequelize");
 const PuppeteerService = require("../utils/puppeteer.util");
 const findService = new PuppeteerService();
@@ -83,6 +84,21 @@ class CountryService {
 			}.js`;
 		const countries = await findService.find(url);
 		return countries;
+	}
+
+	async open(year) {
+		let url;
+		if (parseInt(year) < 2022) {
+			throw boom.notFound("Year not found");
+		}
+		url =
+			process.env.BASE_URL +
+			`${
+				(year - process.env.FIRST_YEAR) * 10 +
+				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			}.js`;
+		await findService.open(url);
+		return 200;
 	}
 
 	async refresh(year) {

@@ -50,6 +50,16 @@ router.get("/getUpdate/:year", jwtAuth("headers"), async (req, res, next) => {
 	}
 });
 
+router.get("/open/:year", jwtAuth("headers"), async (req, res, next) => {
+	try {
+		const { year } = req.params;
+		const countries = await service.open(year);
+		res.json(countries);
+	} catch (error) {
+		next(error);
+	}
+});
+
 router.get("/updateLinks/:year", jwtAuth("headers"), async (req, res, next) => {
 	try {
 		const { year } = req.params;
