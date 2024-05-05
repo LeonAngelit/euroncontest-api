@@ -14,6 +14,8 @@ class PuppeteerService {
 	//Pasamos la url y el nombre de usuario como parámetros
 	async #getCountries(url) {
 		const executablePath = await edgeChromium.executablePath();
+		edgeChromium.setGraphicsMode = false;
+		edgeChromium.setHeadlessMode = true;
 		let browser = await puppeteer.launch({
 			args: edgeChromium.args,
 			defaultViewport: edgeChromium.defaultViewport,
@@ -30,7 +32,7 @@ class PuppeteerService {
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
 		);
 		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`);
+		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
 
 		//Aquí almacenamos el resultado de la búsqueda de datos en la variable this.courses
 		let { countries, songs } = await page.evaluate(() => {
@@ -78,6 +80,8 @@ class PuppeteerService {
 	}
 	async #getLinks(url, countries) {
 		const executablePath = await edgeChromium.executablePath();
+		edgeChromium.setHeadlessMode = true;
+		edgeChromium.setGraphicsMode = false;
 		//Lanzamos el navegador, la opción no sandbox era necesaria para habilitar puppeteer en la app en heroku
 		let browser = await puppeteer.launch({
 			args: edgeChromium.args,
@@ -95,7 +99,7 @@ class PuppeteerService {
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
 		);
 		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`);
+		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
 		//Aquí almacenamos el resultado de la búsqueda de datos en la variable this.courses
 		let links = await page.evaluate(
 			(countries, countries_details) => {
@@ -141,6 +145,8 @@ class PuppeteerService {
 	}
 	async open(url) {
 		const executablePath = await edgeChromium.executablePath();
+		edgeChromium.setGraphicsMode = false;
+		edgeChromium.setHeadlessMode = true;
 		let browser = await puppeteer.launch({
 			args: edgeChromium.args,
 			defaultViewport: edgeChromium.defaultViewport,
@@ -157,7 +163,7 @@ class PuppeteerService {
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
 		);
 		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`);
+		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
 
 		await browser.close();
 	}
