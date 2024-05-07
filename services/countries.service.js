@@ -122,6 +122,8 @@ class CountryService {
 				});
 			} catch (error) {
 				console.log(error);
+				console.log("creating");
+				this.create(countries[i]);
 			}
 		}
 	}
