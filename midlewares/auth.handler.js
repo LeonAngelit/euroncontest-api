@@ -7,8 +7,6 @@ const config = require("../config/config");
 function jwtAuth(property) {
 	return (req, res, next) => {
 		const data = req[property].bearer;
-		console.log(data);
-		console.log(conf.pkey);
 		jwt.verify(data, conf.pkey, function (err, decoded) {
 			if (err) {
 				next(boom.unauthorized("Unathorized"));
@@ -22,6 +20,7 @@ function jwtAuth(property) {
 }
 
 function headerAuth(property) {
+	console.log(bcrypt.hashSync(config.authp, 10));
 	return (req, res, next) => {
 		const data = req[property].authorization;
 		if (!bcrypt.compareSync(config.authp, data)) {

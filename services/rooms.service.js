@@ -1,5 +1,7 @@
 const boom = require('@hapi/boom');
 const { models } = require('../lib/sequelize');
+const ArchiveService = require('../services/archive.service');
+const archiveService = new ArchiveService();
 
 class RoomService {
   constructor() {}
@@ -132,6 +134,19 @@ class RoomService {
     }
     room.destroy();
     return { id };
+  }
+
+  async exportResultsToMongo() {
+    const rooms = await this.find();
+    
+  // avoid circular structure
+  const roomsObject = JSON.parse(JSON.stringify(rooms));
+  const data = {
+    year: new Date().getFullYear(),
+    rooms: roomsObject,
+  };
+    const created = await archiveService.create(data);
+    return created;
   }
 }
 

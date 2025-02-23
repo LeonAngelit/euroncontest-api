@@ -46,6 +46,11 @@ router.get(
     }
   }
 );
+router.get('/archive/export', jwtAuth('headers'), async (req, res) => {
+  const rooms = await service.exportResultsToMongo();
+  res.json(rooms);
+  }
+  );
 
 router.post(
   '/',
