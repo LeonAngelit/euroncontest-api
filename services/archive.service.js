@@ -1,15 +1,12 @@
 const boom = require("@hapi/boom");
-const { response } = require("express");
-const  client  = require('../lib/mongo');
-const { connect } = require("puppeteer-core");
+const client = require('../lib/mongo');
+const config = require("../config/config");
 
 class ArchiveService {
-  constructor() { 
+  constructor() { }
 
-  }
-
-  async run () {
-    const dbConnection = await client.db("Eurocontest").collection("Archive");
+  async run() {
+    const dbConnection = await client.db(config.mongoRSName).collection(config.mongoCollectionName);
     return dbConnection;
   }
 
