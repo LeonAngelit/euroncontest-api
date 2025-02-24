@@ -46,8 +46,9 @@ router.get(
     }
   }
 );
-router.get('/archive/export', jwtAuth('headers'), async (req, res) => {
-  const rooms = await service.exportResultsToMongo();
+router.get('/archive/export/:year', jwtAuth('headers'), async (req, res) => {
+  const { year } = req.params;
+  const rooms = await service.exportResultsToMongo(year);
   res.json(rooms);
   }
   );

@@ -4,7 +4,7 @@ const ArchiveService = require('../services/archive.service');
 const archiveService = new ArchiveService();
 
 class RoomService {
-  constructor() {}
+  constructor() { }
 
   async create(data) {
     const newRoom = await models.Room.create(data);
@@ -136,17 +136,27 @@ class RoomService {
     return { id };
   }
 
-  async exportResultsToMongo() {
+  async exportResultsToMongo(year) {
+    let created = [];
+    await archiveService.deleteByYear(year);
     const rooms = await this.find();
-    
-  // avoid circular structure
-  const roomsObject = JSON.parse(JSON.stringify(rooms));
-  const data = {
-    year: new Date().getFullYear(),
-    rooms: roomsObject,
-  };
-    const created = await archiveService.create(data);
-    return created;
+    for (const room of rooms) {
+      try {
+        let data = {
+          year: parseInt(year),
+          room: room
+        };
+        let parsedData = JSON.parse(JSON.stringify(data));
+        const result = await archiveService.create(parsedData);
+        created[rooms.indexOf(room)] = result;
+      } catch (error) {
+        throw boom.badImplementation('Error exporting results to Mongo');
+      }
+    }
+    return {
+      rooms_added: created.length,
+      created
+    }
   }
 }
 

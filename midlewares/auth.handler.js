@@ -20,7 +20,6 @@ function jwtAuth(property) {
 }
 
 function headerAuth(property) {
-	console.log(bcrypt.hashSync(config.authp, 10));
 	return (req, res, next) => {
 		const data = req[property].authorization;
 		if (!bcrypt.compareSync(config.authp, data)) {
