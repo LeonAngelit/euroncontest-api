@@ -1,6 +1,7 @@
 const boom = require("@hapi/boom");
 const client = require('../lib/mongo');
 const config = require("../config/config");
+const { ObjectId } = require('mongodb');
 
 class ArchiveService {
   constructor() { }
@@ -22,7 +23,7 @@ class ArchiveService {
 
   async findOne(id) {
     const archive = await (await this.run()).findOne({
-      _id: id,
+      _id: new ObjectId(id),
     });
     if (!archive) {
       throw boom.notFound("Archive not found");
