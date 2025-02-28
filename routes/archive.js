@@ -2,136 +2,36 @@ const express = require("express");
 const ArchiveService = require("../services/archive.service");
 const router = express.Router();
 const service = new ArchiveService();
-const validatorHandler = require("../midlewares/validator.handler");
 const { jwtAuth } = require("../midlewares/auth.handler");
-const {
-	getCountrySchema,
-	createCountrySchema,
-	updateCountrySchema,
-} = require("../schemas/country.schema");
 
 router.get("/", jwtAuth("headers"), async (req, res) => {
-	const countries = await service.find();
-	res.json(countries);
+	const rooms = await service.find();
+	res.json(rooms);
 });
 
 router.get(
 	"/:id",
 	jwtAuth("headers"),
-	validatorHandler(getCountrySchema, "params"),
 	async (req, res, next) => {
 		try {
 			const { id } = req.params;
-			const country = await service.findOne(id);
-			res.json(country);
+			const room = await service.findOne(id);
+			res.json(room);
 		} catch (error) {
 			next(error);
 		}
 	}
 );
 
-router.get("/refresh/:year", jwtAuth("headers"), async (req, res, next) => {
+router.get("/users/:userName", jwtAuth("headers"), async (req, res, next) => {
 	try {
-		const { year } = req.params;
-		const countries = await service.refresh(year);
-		res.json(countries);
+		const { userName } = req.params;
+	const rooms = await service.findByUserName(userName);
+	res.json(rooms);
 	} catch (error) {
 		next(error);
 	}
 });
-
-router.get("/getUpdate/:year", jwtAuth("headers"), async (req, res, next) => {
-	try {
-		const { year } = req.params;
-		const countries = await service.getUpdate(year);
-		res.json(countries);
-	} catch (error) {
-		next(error);
-	}
-});
-
-router.get("/open/:year", jwtAuth("headers"), async (req, res, next) => {
-	try {
-		const { year } = req.params;
-		const countries = await service.open(year);
-		res.json(countries);
-	} catch (error) {
-		next(error);
-	}
-});
-
-router.get("/updateLinks/:year", jwtAuth("headers"), async (req, res, next) => {
-	try {
-		const { year } = req.params;
-		const countries = await service.updateLinks(year);
-		res.json(countries);
-	} catch (error) {
-		next(error);
-	}
-});
-
-router.post(
-	"/",
-	jwtAuth("headers"),
-	validatorHandler(createCountrySchema, "body"),
-	async (req, res, next) => {
-		try {
-			const body = req.body;
-			const newCountry = await service.create(body);
-			res.status(201).json(newCountry);
-		} catch (error) {
-			next(error);
-		}
-	}
-);
-
-router.put(
-	"/:id",
-	jwtAuth("headers"),
-	validatorHandler(getCountrySchema, "params"),
-	validatorHandler(updateCountrySchema, "body"),
-	async (req, res, next) => {
-		try {
-			const { id } = req.params;
-			const body = req.body;
-			const country = await service.update(id, body);
-			res.json(country);
-		} catch (error) {
-			next(error);
-		}
-	}
-);
-
-router.patch(
-	"/:id",
-	jwtAuth("headers"),
-	validatorHandler(getCountrySchema, "params"),
-	validatorHandler(updateCountrySchema, "body"),
-	async (req, res, next) => {
-		try {
-			const { id } = req.params;
-			const body = req.body;
-			const country = await service.update(id, body);
-			res.json(country);
-		} catch (error) {
-			next(error);
-		}
-	}
-);
-
-router.delete(
-	"/:id",
-	jwtAuth("headers"),
-	validatorHandler(getCountrySchema, "params"),
-	async (req, res, next) => {
-		try {
-			const { id } = req.params;
-			const deleted = await service.delete(id);
-			res.json(deleted);
-		} catch (error) {
-			next(error);
-		}
-	}
-);
+	
 
 module.exports = router;

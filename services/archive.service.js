@@ -31,8 +31,21 @@ class ArchiveService {
   }
   async findRoomsByUserId(userId) {
     const archives = await (await this.run()).find({
-      userId: userId,
+      "room.users.id": userId,
     }).toArray();
+    return archives;
+  }
+
+  async findByUserName(userName) {
+    const archiveCollection = await this.run();
+    const archives = await archiveCollection.find({
+      "room.users.username": userName,
+    }).toArray();
+  
+    if (archives.length === 0) {
+      throw boom.notFound("Archive not found");
+    }
+  
     return archives;
   }
 
@@ -43,12 +56,7 @@ class ArchiveService {
     return archive;
   }
 
-  async deleteByYear(year) {
-    const archive = await (await this.run()).deleteMany({
-      year: parseInt(year),
-    });
-    return archive;
-  }
+
 }
 
 module.exports = ArchiveService;
