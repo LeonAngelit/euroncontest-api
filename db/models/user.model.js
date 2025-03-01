@@ -47,6 +47,10 @@ class User extends Model {
       foreignKey: 'userId',
       otherKey: 'roomId',
     });
+    this.hasMany(models.UserCountry, {
+      as: 'winnerOption',
+      foreignKey: 'userId',
+    });
   }
 
   static config(sequelize) {

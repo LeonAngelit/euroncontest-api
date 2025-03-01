@@ -57,6 +57,12 @@ class ArchiveService {
     return archive;
   }
 
+  async deleteByYear(year) {
+    const archive = await (await this.run()).deleteMany({
+      year: parseInt(year),
+    });
+    return archive; 
+  }
 
 }
 

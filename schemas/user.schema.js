@@ -8,6 +8,7 @@ const id = Joi.number();
 const name = Joi.string().regex(userNameRegex);
 const password = Joi.string().regex(regexPass);
 const token = Joi.string().min(8);
+const image = Joi.string();
 const winnerOption = Joi.boolean();
 const selection = Joi.array();
 const color = Joi.string();
@@ -22,6 +23,7 @@ const updateUserSchema = Joi.object({
   password: password,
   token: token,
   color: color,
+  image: image,
 });
 
 const getUserSchema = Joi.object({

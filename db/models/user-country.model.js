@@ -41,7 +41,12 @@ const UserCountrySchema = {
 };
 
 class UserCountry extends Model {
-  static associate() {}
+  static associate(models) {
+    this.belongsTo(models.User, {
+      as: 'user',
+      foreignKey: 'userId',
+    });
+  }
   static config(sequelize) {
     return {
       sequelize,
