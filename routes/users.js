@@ -4,6 +4,7 @@ const router = express.Router();
 const service = new UserService();
 const validatorHandler = require('./../midlewares/validator.handler');
 const { jwtAuth } = require('../midlewares/auth.handler');
+const multer = require("multer");
 const {
   createUserSchema,
   getUserSchema,
@@ -12,6 +13,7 @@ const {
   addCountrySchema,
   bulkAddCountrySchema,
 } = require('./../schemas/user.schema');
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/', jwtAuth('headers'), async (req, res) => {
   const users = await service.find();
@@ -97,11 +99,18 @@ router.put(
   '/:id',
   validatorHandler(getUserSchema, 'params'),
   validatorHandler(updateUserSchema, 'body'),
+  upload.single('image'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const body = req.body;
-      const user = await service.update(id, body);
+      const body = req.file ?? req.body;    
+      let user;
+  
+      if (req.file) {
+        user = await service.updateImage(id, body);
+      } else {
+        user = await service.update(id, body);
+      }
       res.json(user);
     } catch (error) {
       next(error);
@@ -114,11 +123,18 @@ router.patch(
   jwtAuth('headers'),
   validatorHandler(getUserSchema, 'params'),
   validatorHandler(updateUserSchema, 'body'),
+  upload.single('image'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
       const body = req.body;
-      const user = await service.update(id, body);
+      let user;
+      if (req.file) {
+        user = await service.updateImage(id, req.file);
+      } else {
+        user = await service.update(id, body);
+      }
+
       res.json(user);
     } catch (error) {
       next(error);

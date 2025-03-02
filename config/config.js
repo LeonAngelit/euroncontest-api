@@ -17,7 +17,10 @@ const config = {
   passwordRegex: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/,
   mongoRSName: process.env.MONGO_RS_NAME,
   mongoCollectionName: process.env.MONGO_COLLECTION_NAME,
-  mongoURL: `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_DOMAIN}/?retryWrites=true&w=majority&appName=${process.env.MONGO_APP_NAME}`
+  mongoURL: `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_DOMAIN}/?retryWrites=true&w=majority&appName=${process.env.MONGO_APP_NAME}`,
+  imagesCloudName: process.env.IMAGES_CLOUD_NAME,
+  imagesCloudKey: process.env.IMAGES_API_KEY,
+  imagesCloudSecret: process.env.IMAGES_API_SECRET
 };
 
 module.exports = config;

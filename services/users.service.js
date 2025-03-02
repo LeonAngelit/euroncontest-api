@@ -1,5 +1,7 @@
 const boom = require('@hapi/boom');
 const { models } = require('./../lib/sequelize');
+const ImagesService = require('./images.service');
+const imagesService = new ImagesService();
 
 class UserService {
   constructor() {
@@ -166,7 +168,7 @@ class UserService {
           attributes: { exclude: ['password'] },
         },
       ],
-      attributes: { exclude: ['password', 'color', 'image'] },
+      attributes: { exclude: ['password'] },
     });
     if (!user) {
       throw boom.notFound('User not found');
@@ -226,6 +228,17 @@ class UserService {
     const user = await models.User.findOne({ where: { id: id } });
     const rta = await user.update(data);
     return this.findOne(rta.id);
+  }
+
+  async updateImage(id, data) {
+    const url = await imagesService.upload(data);
+    const user = await models.User.findOne({ where: { id: id } });
+    if(!url){
+      return boom.badRequest('No se ha podido subir la imagen');
+    }
+    const rta = await user.update({ image: url });
+    return this.findOne(rta.id);
+
   }
 
   async delete(id) {
