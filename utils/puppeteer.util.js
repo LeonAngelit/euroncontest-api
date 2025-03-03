@@ -18,7 +18,7 @@ class PuppeteerService {
 		let browser = await puppeteer.launch({
 			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
 			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath(),
+			executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar"),
 			headless: chromium.headless, // Use true instead of 'new' for stability
 		  });
 		let page = await browser.newPage();
@@ -31,7 +31,7 @@ class PuppeteerService {
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
 		);
 		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`);
+		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
 
 		//Aquí almacenamos el resultado de la búsqueda de datos en la variable this.courses
 		let { countries, songs } = await page.evaluate(() => {
@@ -83,7 +83,7 @@ class PuppeteerService {
 		let browser = await puppeteer.launch({
 			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
 			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath(),
+			executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar"),
 			headless: chromium.headless, // Use true instead of 'new' for stability
 		  });
 
@@ -100,7 +100,7 @@ class PuppeteerService {
 		);
 		
 		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`);
+		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
 		//Aquí almacenamos el resultado de la búsqueda de datos en la variable this.courses
 		let links = await page.evaluate(
 			(countries, countries_details) => {
@@ -154,7 +154,7 @@ class PuppeteerService {
 		let browser = await puppeteer.launch({
 			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
 			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath(),
+			executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar"),
 			headless: chromium.headless, // Use true instead of 'new' for stability
 		  });
 		let page = await browser.newPage();
@@ -167,7 +167,7 @@ class PuppeteerService {
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
 		);
 		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`);
+		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
 
 		await browser.close();
 	}
