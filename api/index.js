@@ -1,5 +1,5 @@
 const express = require('express');
-const routerApi = require('./routes/index');
+const routerApi = require('../routes/index');
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
@@ -9,7 +9,7 @@ const {
   errorHandler,
   boomErrorHandler,
   sequelizeError,
-} = require('./midlewares/error.handler');
+} = require('../midlewares/error.handler');
 
 app.use(express.json());
 app.use(cors());
