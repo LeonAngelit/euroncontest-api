@@ -1,7 +1,7 @@
 const COUNTRIES_DETAILS = require("../dictionaries/countries");
 const boom = require("@hapi/boom");
 const puppeteer = require("puppeteer-core");
-const edgeChromium = require("@sparticuz/chromium");
+const chromium = require("@sparticuz/chromium");
 //Creamos la clase que instanciaremos en el archivo courses.js
 class PuppeteerService {
 	constructor() {
@@ -13,15 +13,14 @@ class PuppeteerService {
 
 	//Pasamos la url y el nombre de usuario como parámetros
 	async #getCountries(url) {
-		const executablePath = await edgeChromium.executablePath();
-		edgeChromium.setGraphicsMode = false;
+		chromium.setGraphicsMode = false;
 		
 		let browser = await puppeteer.launch({
-			args: edgeChromium.args,
-			defaultViewport: edgeChromium.defaultViewport,
-			executablePath,
-			headless: 'new',
-		});
+			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+			defaultViewport: chromium.defaultViewport,
+			executablePath: await chromium.executablePath(),
+			headless: true, // Use true instead of 'new' for stability
+		  });
 		let page = await browser.newPage();
 		await page.setExtraHTTPHeaders({
 			"Accept-Language": "es-ES,es;q=0.9",
@@ -79,15 +78,16 @@ class PuppeteerService {
 		}
 	}
 	async #getLinks(url, countries) {
-		const executablePath = await edgeChromium.executablePath();
-		edgeChromium.setGraphicsMode = false;
+		chromium.setGraphicsMode = false;;
 		//Lanzamos el navegador, la opción no sandbox era necesaria para habilitar puppeteer en la app en heroku
 		let browser = await puppeteer.launch({
-			args: edgeChromium.args,
-			defaultViewport: edgeChromium.defaultViewport,
-			executablePath,
-			headless: 'new',
-		});
+			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+			defaultViewport: chromium.defaultViewport,
+			executablePath: await chromium.executablePath(),
+			headless: true, // Use true instead of 'new' for stability
+		  });
+
+		  
 		let page = await browser.newPage();
 		await page.setExtraHTTPHeaders({
 			"Accept-Language": "es-ES,es;q=0.9",
@@ -111,10 +111,15 @@ class PuppeteerService {
 					let link;
 					let links = {};
 					for (let i = 0; i < countries.length; i++) {
-						link = document
+						try{
+							link = document
 							.getElementById(countries_details[countries[i].code].global_name)
 							.getElementsByClassName("video video_done")[0]
 							.getAttribute("data-video-iframe");
+						} catch(error){
+							link = ""
+						}
+						
 						if (link != "") {
 							links[countries[i].name] = link;
 						}
@@ -145,14 +150,13 @@ class PuppeteerService {
 		return this.#getLinks(url, countries);
 	}
 	async open(url) {
-		const executablePath = await edgeChromium.executablePath();
-		edgeChromium.setGraphicsMode = false;
+		chromium.setGraphicsMode = false;
 		let browser = await puppeteer.launch({
-			args: edgeChromium.args,
-			defaultViewport: edgeChromium.defaultViewport,
-			executablePath,
-			headless: 'new',
-		});
+			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+			defaultViewport: chromium.defaultViewport,
+			executablePath: await chromium.executablePath(),
+			headless: true, // Use true instead of 'new' for stability
+		  });
 		let page = await browser.newPage();
 		await page.setExtraHTTPHeaders({
 			"Accept-Language": "es-ES,es;q=0.9",

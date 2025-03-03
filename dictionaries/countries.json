@@ -1,207 +1,166 @@
 {
 	"al": {
 		"name": "Albania",
-		"global_name": "albania",
-		"link": "https://www.youtube.com/watch?v=mp8OG4ApocI&t=6s"
+		"global_name": "albania"
 	},
 	"am": {
 		"name": "Armenia",
-		"global_name": "albania",
-		"link": "https://www.youtube.com/watch?v=Co8ZJIejXBA&t=6s"
+		"global_name": "albania"
 	},
 	"au": {
 		"name": "Australia",
-		"global_name": "australia",
-		"link": "https://www.youtube.com/watch?v=aqtu2GspT80&t=5s"
+		"global_name": "australia"
 	},
 	"at": {
 		"name": "Austria",
-		"global_name": "austria",
-		"link": "https://www.youtube.com/watch?v=ZMmLeV47Au4&t=5s"
+		"global_name": "austria"
 	},
 	"az": {
 		"name": "Azerbaijan",
-		"global_name": "azerbaijan",
-		"link": "https://www.youtube.com/watch?v=5dvsr-L3HgY&t=6s"
+		"global_name": "azerbaijan"
 	},
 	"be": {
 		"name": "Belgica",
-		"global_name": "belgium",
-		"link": "https://www.youtube.com/watch?v=uYWhh-E_VPo&t=4s"
+		"global_name": "belgium"
 	},
 	"bg": {
 		"name": "Bulgaria",
-		"global_name": "",
-		"link": ""
+		"global_name": ""
 	},
 	"hr": {
 		"name": "Croacia",
-		"global_name": "croatia",
-		"link": "https://www.youtube.com/watch?v=isZ_4AnCTnA&t=5s"
+		"global_name": "croatia"
 	},
 	"cy": {
 		"name": "Chipre",
-		"global_name": "cyprus",
-		"link": "https://www.youtube.com/watch?v=zrFUKqTy4zI&t=5s"
+		"global_name": "cyprus"
 	},
 	"cz": {
 		"name": "Republica Checa",
-		"global_name": "czechia",
-		"link": "https://www.youtube.com/watch?v=OZxQS4givVo"
+		"global_name": "czechia"
 	},
 	"dk": {
 		"name": "Dinamarca",
-		"global_name": "denmark",
-		"link": "https://www.youtube.com/watch?v=kY5QNC2LkG8&t=5s"
+		"global_name": "denmark"
 	},
 	"ee": {
 		"name": "Estonia",
-		"global_name": "estonia",
-		"link": "https://www.youtube.com/watch?v=lbEj29AjB-c&t=5s"
+		"global_name": "estonia"
 	},
 	"fi": {
 		"name": "Finlandia",
-		"global_name": "finland",
-		"link": "https://www.youtube.com/watch?v=rJHe-iZ5HSI&t=5s"
+		"global_name": "finland"
 	},
 	"fr": {
 		"name": "Francia",
-		"global_name": "france",
-		"link": "https://www.youtube.com/watch?v=GWfbEFH9NvQ&t=5s"
+		"global_name": "france"
 	},
 	"ge": {
 		"name": "Georgia",
-		"global_name": "georgia",
-		"link": "https://www.youtube.com/watch?v=E8kO-QPippo&t=6s"
+		"global_name": "georgia"
 	},
 	"de": {
 		"name": "Alemania",
-		"global_name": "germany",
-		"link": "https://www.youtube.com/watch?v=lnAliSmSI1A&t=5s"
+		"global_name": "germany"
 	},
 	"gr": {
 		"name": "Grecia",
-		"global_name": "greece",
-		"link": "https://www.youtube.com/watch?v=qL0EkId_sTY&t=6s"
+		"global_name": "greece"
 	},
 	"is": {
 		"name": "Islandia",
-		"global_name": "iceland",
-		"link": "https://www.youtube.com/watch?v=BhlJXcCv7gw&t=6sf"
+		"global_name": "iceland"
 	},
 	"ie": {
 		"name": "Irlanda",
-		"global_name": "ireland",
-		"link": "https://www.youtube.com/watch?v=ak5Fevs424Y&t=5s"
+		"global_name": "ireland"
 	},
 	"il": {
 		"name": "Israel",
-		"global_name": "israel",
-		"link": "https://www.youtube.com/watch?v=r4wbdKmM3bQ&t=5s"
+		"global_name": "israel"
 	},
 	"it": {
 		"name": "Italia",
-		"global_name": "italy",
-		"link": "https://www.youtube.com/watch?v=Etn8d1x5Byk&t=7s"
+		"global_name": "italy"
 	},
 	"lv": {
 		"name": "Letonia",
-		"global_name": "latvia",
-		"link": "https://www.youtube.com/watch?v=PQkKJNLuO_Y&t=5s"
+		"global_name": "latvia"
 	},
 	"lt": {
 		"name": "Lituania",
-		"global_name": "lithuania",
-		"link": "https://www.youtube.com/watch?v=68lbEUDuWUQ&t=5s"
+		"global_name": "lithuania"
 	},
 	"lu": {
 		"name": "Luxemburgo",
-		"global_name": "luxembourg",
-		"link": "https://www.youtube.com/watch?v=68lbEUDuWUQ&t=5s"
+		"global_name": "luxembourg"
 	},
 	"mt": {
 		"name": "Malta",
-		"global_name": "malta",
-		"link": "https://www.youtube.com/watch?v=Apqwl0ayL6A&t=5s"
+		"global_name": "malta"
 	},
 	"md": {
 		"name": "Moldavia",
-		"global_name": "moldova",
-		"link": "https://www.youtube.com/watch?v=3I0we0lhDic&t=5s"
+		"global_name": "moldova"
 	},
 	"me": {
 		"name": "Montenegro",
-		"global_name": "",
-		"link": ""
+		"global_name": ""
 	},
 	"nl": {
 		"name": "Holanda",
-		"global_name": "netherlands",
-		"link": "https://www.youtube.com/watch?v=UOf-oKDlO6A&t=6s"
+		"global_name": "netherlands"
 	},
 	"mk": {
 		"name": "Macedonia",
-		"global_name": "",
-		"link": ""
+		"global_name": ""
 	},
 	"no": {
 		"name": "Noruega",
-		"global_name": "norway",
-		"link": "https://www.youtube.com/watch?v=zt7U0-N1mlk&t=6s"
+		"global_name": "norway"
 	},
 	"pl": {
 		"name": "Polonia",
-		"global_name": "poland",
-		"link": "https://www.youtube.com/watch?v=ANM4CwbE0Is&t=6s"
+		"global_name": "poland"
 	},
 	"pt": {
 		"name": "Portugal",
-		"global_name": "portugal",
-		"link": "https://www.youtube.com/watch?v=wa3suiOzAAk&t=5s"
+		"global_name": "portugal"
 	},
 	"ro": {
 		"name": "Rumania",
-		"global_name": "romania",
-		"link": "https://www.youtube.com/watch?v=NRxv-AUCinQ&t=5s"
+		"global_name": "romania"
 	},
 	"sm": {
 		"name": "San Marino",
-		"global_name": "san-marino",
-		"link": "https://www.youtube.com/watch?v=Hjfq-T-8WHw&t=5s"
+		"global_name": "san-marino"
 	},
 	"rs": {
 		"name": "Serbia",
-		"global_name": "serbia",
-		"link": "https://www.youtube.com/watch?v=oeIVwYUge8o&t=5s"
+		"global_name": "serbia"
 	},
 	"si": {
 		"name": "Eslovenia",
-		"global_name": "slovenia",
-		"link": "https://www.youtube.com/watch?v=zDBSIGITdY4&t=6s"
+		"global_name": "slovenia"
 	},
 	"es": {
 		"name": "España",
-		"global_name": "spain",
-		"link": "https://www.youtube.com/watch?v=yxuO0qZITko&t=5s"
+		"global_name": "spain"
 	},
 	"se": {
 		"name": "Suecia",
-		"global_name": "sweden",
-		"link": "https://www.youtube.com/watch?v=b3vJfR81xO0&t=6s"
+		"global_name": "sweden"
 	},
 	"ch": {
 		"name": "Suiza",
-		"global_name": "switzerland",
-		"link": "https://www.youtube.com/watch?v=_8-Sbc_GZMc&t=5s"
+		"global_name": "switzerland"
 	},
 	"ua": {
 		"name": "Ucrania",
-		"global_name": "ukraine",
-		"link": "https://www.youtube.com/watch?v=neIscK1hNxs&t=5s"
+		"global_name": "ukraine"
 	},
 	"gb": {
 		"name": "Reino Unido",
-		"global_name": "united-kingdom",
-		"link": "https://www.youtube.com/watch?v=tJ21grjN6wU&t=6s"
+		"global_name": "united-kingdom"
 	}
 }
