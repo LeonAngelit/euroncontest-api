@@ -78,7 +78,10 @@ class PuppeteerService {
 		}
 	}
 	async #getLinks(url, countries) {
-		chromium.setGraphicsMode = false;;
+		chromium.setGraphicsMode = false;
+		const executablePath = await chromium.executablePath();
+console.log("chromium executable path:", executablePath); 
+
 		//Lanzamos el navegador, la opción no sandbox era necesaria para habilitar puppeteer en la app en heroku
 		let browser = await puppeteer.launch({
 			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
