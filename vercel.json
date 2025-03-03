@@ -3,7 +3,7 @@
 	"buildCommand": "npm install @sparticuz/chromium",
 	"functions": {
 	  "index.js": {
-		"runtime": "nodejs",
+		"runtime": "@vercel/node@5.1.10",
 		"memory": 1024,
 		"maxDuration": 60
 	  }
