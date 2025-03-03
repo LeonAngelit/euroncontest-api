@@ -18,7 +18,7 @@ class PuppeteerService {
 		let browser = await puppeteer.launch({
 			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
 			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar"),
+			executablePath: await chromium.executablePath(),
 			headless: chromium.headless, // Use true instead of 'new' for stability
 		  });
 		let page = await browser.newPage();
@@ -83,7 +83,7 @@ class PuppeteerService {
 		let browser = await puppeteer.launch({
 			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
 			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar"),
+			executablePath: await chromium.executablePath(),
 			headless: chromium.headless, // Use true instead of 'new' for stability
 		  });
 
@@ -154,7 +154,7 @@ class PuppeteerService {
 		let browser = await puppeteer.launch({
 			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
 			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar"),
+			executablePath: await chromium.executablePath(),
 			headless: chromium.headless, // Use true instead of 'new' for stability
 		  });
 		let page = await browser.newPage();
