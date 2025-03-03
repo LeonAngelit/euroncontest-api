@@ -1,21 +1,21 @@
 {
 	"version": 2,
-	"buildCommand": "vercel build && node node_modules/puppeteer-core/install.js;",
-
-	"builds": [
-		{
-			"src": "index.js",
-			"use": "@vercel/node"
-		}
-	],
+	"buildCommand": "npm install @sparticuz/chromium",
+	"functions": {
+	  "index.js": {
+		"runtime": "nodejs20.x",
+		"memory": 1024,
+		"maxDuration": 60
+	  }
+	},
 	"routes": [
-		{
-			"src": "/(.*)",
-			"dest": "index.js",
-			"methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-			"headers": {
-				"Access-Control-Allow-Origin": "*"
-			}
+	  {
+		"src": "/(.*)",
+		"dest": "index.js",
+		"methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+		"headers": {
+		  "Access-Control-Allow-Origin": "*"
 		}
+	  }
 	]
-}
+  }
