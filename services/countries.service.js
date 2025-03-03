@@ -133,7 +133,7 @@ class CountryService {
 		}
 		if(resetNeeded){
 			await this.updateLinks(year);
-			await updatableService.update({ last_updated_year: year });
+			await updatableService.set({ last_updated_year: parseInt(year) });
 		}
 	}
 
