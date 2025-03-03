@@ -20,7 +20,8 @@ class UpdatableSevice {
       updatable: true,
       updatable_user: true,
       master_password: config.authp,
-      refresh:true
+      refresh_enabled:true,
+      last_updated_year: new Date().getFullYear(),
     };
     const updatable = await this.create(data, {
       exclude: ['master_password'],

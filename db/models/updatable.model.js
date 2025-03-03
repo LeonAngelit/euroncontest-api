@@ -25,6 +25,17 @@ const UpdatableSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
+  refresh_enabled: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    default: true,
+  },
+  last_updated_year: {
+    allowNull: false,
+    type: DataTypes.INTEGER,
+  },
+
+
 };
 
 class Updatable extends Model {

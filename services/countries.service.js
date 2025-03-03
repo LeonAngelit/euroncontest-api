@@ -1,7 +1,8 @@
 const boom = require("@hapi/boom");
-const { response } = require("express");
 const { models } = require("../lib/sequelize");
 const PuppeteerService = require("../utils/puppeteer.util");
+const UpdatableService = require("./updatable.service");
+const updatableService = new UpdatableService();
 const findService = new PuppeteerService();
 
 class CountryService {
@@ -102,6 +103,7 @@ class CountryService {
 	}
 
 	async refresh(year) {
+		const resetNeeded = await updatableService.find().last_updated_year < year;
 		let url;
 		if (parseInt(year) < 2022) {
 			throw boom.notFound("Year not found");
@@ -112,6 +114,9 @@ class CountryService {
 				(year - process.env.FIRST_YEAR) * 10 +
 				parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
+		if(resetNeeded){
+			await models.Country.truncate();
+		}
 		const countries = await findService.find(url);
 		for (let i = 0; i < countries.length; i++) {
 			try {
@@ -125,6 +130,10 @@ class CountryService {
 				console.log("creating");
 				this.create(countries[i]);
 			}
+		}
+		if(resetNeeded){
+			await this.updateLinks(year);
+			await updatableService.update({ last_updated_year: year });
 		}
 	}
 
