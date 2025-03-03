@@ -103,7 +103,8 @@ class CountryService {
 	}
 
 	async refresh(year) {
-		const resetNeeded = await updatableService.find().last_updated_year < year;
+		const lastUpdatedYear = await updatableService.find();
+		let resetNeeded = lastUpdatedYear.last_updated_year < parseInt(year);
 		let url;
 		if (parseInt(year) < 2022) {
 			throw boom.notFound("Year not found");
@@ -115,7 +116,7 @@ class CountryService {
 				parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
 		if(resetNeeded){
-			await models.Country.truncate();
+			await models.Country.truncate({ restartIdentity: true, cascade: true });
 		}
 		const countries = await findService.find(url);
 		for (let i = 0; i < countries.length; i++) {
@@ -124,6 +125,7 @@ class CountryService {
 				this.update(countryTemp.id, {
 					position: countries[i].position,
 					points: countries[i].points,
+					song: countries[i].song,
 				});
 			} catch (error) {
 				console.log(error);
