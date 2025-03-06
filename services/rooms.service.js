@@ -89,6 +89,13 @@ class RoomService {
               },
               attributes: { exclude: ['link'] },
             },
+            {
+              model: models.UserCountry,
+              as: 'winnerOption',
+              where: { winnerOption: true },
+              required: false,
+              attributes: { exclude: ['id', 'userId', 'winnerOption'] },
+            },
           ],
           attributes: { exclude: ['password', 'token'] },
         },
