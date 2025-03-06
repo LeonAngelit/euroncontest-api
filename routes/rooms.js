@@ -65,7 +65,7 @@ router.post('/verifyRoomToken', jwtAuth('headers'),
     try {
       const token = req.body?.token;
       const roomId = await service.verifyRoomToken(token);
-      res.status(200).json(roomId);
+      res.status(200).json({id: roomId});
     } catch (error) {
       next(error);
     }
