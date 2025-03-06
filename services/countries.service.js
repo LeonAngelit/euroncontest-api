@@ -2,6 +2,9 @@ const boom = require("@hapi/boom");
 const { models } = require("../lib/sequelize");
 const PuppeteerService = require("../utils/puppeteer.util");
 const UpdatableService = require("./updatable.service");
+const UserService = require("./users.service");
+const { user } = require("pg/lib/defaults");
+const userService = new UserService();
 const updatableService = new UpdatableService();
 const findService = new PuppeteerService();
 
@@ -137,6 +140,20 @@ class CountryService {
 			await this.updateLinks(year);
 			await updatableService.set({ last_updated_year: parseInt(year) });
 		}
+		
+		const users = await userService.find();		
+		users.map(async user => {	
+			let totalPoints = 0;
+			user.countries.forEach(country => {
+				if(country.id === user.winnerOption[0].countryId){
+					totalPoints += parseInt(country.points + country.points * 0.1);
+				} else {
+					totalPoints += parseInt(country.points);
+				}
+					
+			});
+			await user.update( { points: totalPoints });
+		});
 	}
 
 	async updateLinks(year) {

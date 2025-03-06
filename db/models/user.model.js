@@ -27,6 +27,11 @@ const UserSchema = {
     allowNull: true,
     type: DataTypes.STRING,
   },
+  points: {
+    allowNull: true,
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
   token: {
     allowNull: true,
     type: DataTypes.STRING,

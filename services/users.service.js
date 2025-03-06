@@ -123,6 +123,12 @@ class UserService {
           },
           attributes: { exclude: ['link'] },
         },
+        {
+          model: models.UserCountry,
+          as: 'winnerOption',
+          where: { winnerOption: true },
+          attributes: { exclude: ['id', 'userId', 'winnerOption'] },
+        },
       ],
       attributes: { exclude: ['password'] },
     });
@@ -233,7 +239,7 @@ class UserService {
   async updateImage(id, data) {
     const url = await imagesService.upload(data);
     const user = await models.User.findOne({ where: { id: id } });
-    if(!url){
+    if (!url) {
       return boom.badRequest('No se ha podido subir la imagen');
     }
     const rta = await user.update({ image: url });
