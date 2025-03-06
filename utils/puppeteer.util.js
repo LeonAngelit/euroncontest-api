@@ -13,52 +13,10 @@ class PuppeteerService {
 
 	//Pasamos la url y el nombre de usuario como parámetros
 	async #getCountries(url) {
-		chromium.setGraphicsMode = false;
-		
-		let browser = await puppeteer.launch({
-			args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
-			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath(),
-			headless: chromium.headless, // Use true instead of 'new' for stability
-		  });
-		let page = await browser.newPage();
-		await page.setExtraHTTPHeaders({
-			"Accept-Language": "es-ES,es;q=0.9",
-		});
-		
-		//Establecemos los user agent
-		await page.setUserAgent(
-			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
-		);
-		//Aquí vamos a la url :), una parte de la url está en una variable de entorno, y la otra es el username es el que le pasamos
-		await page.goto(`${url}`, { waitUntil: "domcontentloaded" });
-
-		//Aquí almacenamos el resultado de la búsqueda de datos en la variable this.courses
-		let { countries, songs } = await page.evaluate(() => {
-			//Si no hay datos devolvemos undefined
-			if (document == undefined) {
-				return undefined;
-			} else {
-				//En caso contrario procesamos los datos, yo necesitaba el título, la imagen del curso y el link al diploma!
-				//Elegí esta manera para almacenar los datos, en un array temporal que devuelvo
-				let countries = JSON.parse(
-					document
-						.getElementsByTagName("pre")[0]
-						.innerHTML.split("voting_table_main = ")[1]
-						.split(";")[0]
-				);
-				let songs = JSON.parse(
-					document
-						.getElementsByTagName("pre")[0]
-						.innerHTML.split("voting_songs = ")[1]
-						.split("};")[0] + "}"
-				);
-				return { countries, songs };
-			}
-		});
-		//Es importante cerrar el browser al terminar
-		await browser.close();
-		//Si finalmente no hemos devuelto datos, devolvemos un error con boom diciendo que no hemos encontrado el nombre de usuario
+		const response = await fetch(url);
+        const data = await response.text();
+		let countries = JSON.parse(data.split("voting_table_main = ")[1].split(";")[0]);
+		let songs = JSON.parse(data.split("voting_songs = ")[1].split("};")[0] + "}");
 		if (countries == undefined) {
 			throw boom.notFound("País no encontrado, revísalo");
 		} else {

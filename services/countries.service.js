@@ -104,7 +104,7 @@ class CountryService {
 
 	async refresh(year) {
 		const lastUpdatedYear = await updatableService.find();
-		let resetNeeded = lastUpdatedYear.last_updated_year < parseInt(year);
+		let resetNeeded = lastUpdatedYear.last_updated_year != parseInt(year);
 		let url;
 		if (parseInt(year) < 2022) {
 			throw boom.notFound("Year not found");
