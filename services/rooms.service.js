@@ -94,6 +94,10 @@ class RoomService {
         },
       ],
       attributes: { exclude: ['password'] },
+      order: [[{
+        model
+          : models.User, as: 'users'
+      }, 'points', 'DESC']],
     });
     if (!room) {
       throw boom.notFound('Room not found');
