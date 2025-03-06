@@ -84,6 +84,9 @@ class RoomService {
             {
               model: models.Country,
               as: 'countries',
+              through: {
+                attributes: [], // exclude the join table columns
+              },
               attributes: { exclude: ['link'] },
             },
           ],
