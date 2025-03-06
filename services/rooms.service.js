@@ -1,7 +1,9 @@
 const boom = require('@hapi/boom');
 const { models } = require('../lib/sequelize');
 const ArchiveService = require('../services/archive.service');
+const { authp, pkey } = require('../config/config');
 const archiveService = new ArchiveService();
+const jsonwebtoken = require('jsonwebtoken');
 
 class RoomService {
   constructor() { }
@@ -185,6 +187,25 @@ class RoomService {
     return {
       rooms_added: created.length,
       created
+    }
+  }
+
+  async generateRoomToken(id){
+   const room = await this.findOne(id);
+    if(room){
+      const token = jsonwebtoken.sign({ roomId: id, auth: authp }, pkey, { expiresIn: "24h" });
+    return token;
+    } else{
+      throw boom.notFound('Room not found');
+    }
+  }
+
+  async verifyRoomToken(token){
+    const decoded = jsonwebtoken.verify(token, pkey);
+    if(decoded.auth === authp){
+      return decoded.roomId;
+    } else{
+      throw boom.unauthorized('Invalid token');
     }
   }
 }

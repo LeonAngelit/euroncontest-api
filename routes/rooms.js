@@ -50,8 +50,27 @@ router.get('/archive/export/:year', jwtAuth('headers'), async (req, res) => {
   const { year } = req.params;
   const rooms = await service.exportResultsToMongo(year);
   res.json(rooms);
+}
+);
+
+router.get('/generateRoomToken/:id', jwtAuth('headers'), async (req, res) => {
+  const { id } = req.params;
+  const token = await service.generateRoomToken(id);
+  res.json(token);
+}
+);
+
+router.post('/verifyRoomToken', jwtAuth('headers'),
+  async (req, res, next) => {
+    try {
+      const token = req.body?.token;
+      const roomId = await service.verifyRoomToken(token);
+      res.status(200).json(roomId);
+    } catch (error) {
+      next(error);
+    }
   }
-  );
+);
 
 router.post(
   '/',

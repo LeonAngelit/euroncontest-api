@@ -3,7 +3,6 @@ const { models } = require("../lib/sequelize");
 const PuppeteerService = require("../utils/puppeteer.util");
 const UpdatableService = require("./updatable.service");
 const UserService = require("./users.service");
-const { user } = require("pg/lib/defaults");
 const userService = new UserService();
 const updatableService = new UpdatableService();
 const findService = new PuppeteerService();
