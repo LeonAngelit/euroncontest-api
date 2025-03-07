@@ -100,6 +100,9 @@ class UserService {
             },
           }
         );
+        await user.update({
+          points: user.points += country.points,
+        })
         response = {
           user,
           country,
