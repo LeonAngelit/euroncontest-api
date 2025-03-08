@@ -28,6 +28,7 @@ class ArchiveService {
     if (!archive) {
       throw boom.notFound("Archive not found");
     }
+    archive.room.users.sort((a, b) => b.points - a.points);
     return archive;
   }
   async findRoomsByUserId(userId) {
