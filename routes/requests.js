@@ -9,7 +9,7 @@ router.post('/addRequest', jwtAuth('headers'),
   async (req, res, next) => {
     try {
       const body = req.body;
-      if (!(body.model == "image_to_video" || body.model == "upscale") || !body.imgPath) {
+      if (!(["image_to_video","upscale", "clean"].includes(body.model)) || !body.imgPath) {
         return res.status(400).json({ error: "You must provide a valid body" })
       } else {
         const newRequest = await service.create(body);

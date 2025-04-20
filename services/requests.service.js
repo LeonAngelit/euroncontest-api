@@ -13,7 +13,7 @@ class RequestService {
   async create(data) {
     let template = ''
     let requestData = '';
-    if(data.model == "image_to_video" || data.model == "upscale"){
+    if(["image_to_video","upscale","clean"].includes(data.model)){
       if (data.model == "image_to_video") {
         template = config.imageToVideoTemplate;
         try {
@@ -26,6 +26,13 @@ class RequestService {
         template = config.upscaleTemplate;
         try {
           requestData = this.#formatString(template, data.imgPath, data.imgPath, data.imgPath)
+        } catch (error) {
+          return error;
+        }
+      }
+      if (data.model == "clean") {
+        try {
+          requestData = "clean"
         } catch (error) {
           return error;
         }
