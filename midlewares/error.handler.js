@@ -25,10 +25,13 @@ function sequelizeError(err, req, res, next) {
 }
 
 function errorHandler(err, req, res, next) {
-  res.status(500).json({
-    message: err.message,
-    stack: err.stack,
-  });
+  if(!err instanceof ValidationError){
+    res.status(500).json({
+      message: err.message,
+      stack: err.stack,
+    });
+  }
+ 
 }
 
 module.exports = { logErrors, errorHandler, boomErrorHandler, sequelizeError };
