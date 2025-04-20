@@ -13,7 +13,7 @@ class RequestService {
   async create(data) {
     let template = ''
     let requestData = '';
-    if(["image_to_video","upscale","clean"].includes(data.model)){
+    if (["image_to_video", "upscale", "clean"].includes(data.model)) {
       if (data.model == "image_to_video") {
         template = config.imageToVideoTemplate;
         try {
@@ -40,10 +40,11 @@ class RequestService {
     } else {
       return "No valid model"
     }
-   
-    const newRequest = await (await this.run()).insertOne({request: requestData});
+
+    const newRequest = await (await this.run()).insertOne({ request: requestData });
     const response = newRequest ? 1 : newRequest;
     return response;
+
   }
 
   async delete() {
