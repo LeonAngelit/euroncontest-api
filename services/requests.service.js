@@ -17,7 +17,7 @@ class RequestService {
       if (data.model == "image_to_video") {
         template = config.imageToVideoTemplate;
         try {
-          requestData = this.#formatString(template, data.prompt, data.imgPath, data.imgPath)
+          requestData = this.#formatString(template, data.prompt, data.imgPath, data.prompt, data.imgPath)
         } catch (error) {
           return error;
         }
@@ -25,7 +25,7 @@ class RequestService {
       if (data.model == "upscale") {
         template = config.upscaleTemplate;
         try {
-          requestData = this.#formatString(template, data.imgPath, data.imgPath, data.imgPath)
+          requestData = this.#formatString(template, data.imgPath, data.imgPath)
         } catch (error) {
           return error;
         }
