@@ -244,6 +244,7 @@ class UserService {
       const token = jsonwebtoken.sign({ userId: user.id, email: data.email }, pkey, { expiresIn: "1h" });
       this.sendEmail(token, data.email);
       data.email = user.email;
+      data.email_sent = Date.now().toString();
     }
     const rta = await user.update(data);
     return this.findOne(rta.id);
@@ -255,7 +256,6 @@ class UserService {
     if(decoded.email){
         data = {
         email: decoded.email,
-        email_sent: Date.now().toString()
       }
     }
     if (decoded.userId) {
