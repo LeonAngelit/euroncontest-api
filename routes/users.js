@@ -103,9 +103,9 @@ router.put(
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const body = req.file ?? req.body;    
+      const body = req.file ?? req.body;
       let user;
-  
+
       if (req.file) {
         user = await service.updateImage(id, body);
       } else {
@@ -136,6 +136,23 @@ router.patch(
       }
 
       res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post('/updateUserEmail', jwtAuth('headers'),
+  async (req, res, next) => {
+    try {
+      if (req.body?.token) {
+        const token = req.body?.token;
+        const userId = await service.updateEmail(token);
+        res.status(200).json({ id: userId });
+      } else {
+        res.status(400).json({ error: "Request body is not correct" })
+      }
+
     } catch (error) {
       next(error);
     }

@@ -36,6 +36,14 @@ const UserSchema = {
     allowNull: true,
     type: DataTypes.STRING,
   },
+  email: {
+    allowNull: true,
+    type: DataTypes.STRING,
+  },
+  email_sent: {
+    allowNull: true,
+    type: DataTypes.STRING,
+  },
 };
 
 class User extends Model {

@@ -1,7 +1,12 @@
 const boom = require('@hapi/boom');
 const { models } = require('./../lib/sequelize');
+const { pkey } = require('../config/config');
 const ImagesService = require('./images.service');
+const EmailService = require('../utils/email.util');
+const emailService = new EmailService();
 const imagesService = new ImagesService();
+const jsonwebtoken = require('jsonwebtoken');
+const { Timestamp } = require('mongodb');
 
 class UserService {
   constructor() {
@@ -235,8 +240,64 @@ class UserService {
 
   async update(id, data) {
     const user = await models.User.findOne({ where: { id: id } });
+    if (data.email && data.email != user.email) {
+      const token = jsonwebtoken.sign({ userId: user.id, email: data.email }, pkey, { expiresIn: "1h" });
+      this.sendEmail(token, data.email);
+      data.email = user.email;
+    }
     const rta = await user.update(data);
     return this.findOne(rta.id);
+  }
+
+  async updateEmail(token) {
+    const decoded = jsonwebtoken.verify(token, pkey);
+    let data;
+    if(decoded.email){
+        data = {
+        email: decoded.email,
+        email_sent: Date.now().toString()
+      }
+    }
+    if (decoded.userId) {
+      const user = await models.User.findOne({ where: { id: decoded.userId } });
+      const rta = await user.update(data);
+      return this.findOne(rta.id);
+    } else {
+      throw boom.unauthorized('Invalid token');
+    }
+  }
+
+  async sendEmail(token, emailReceiver) {
+    const htmlEmailBody = `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirma tu email</title>
+</head>
+
+<body>
+    <p>
+        Hola! Has solicitado actualizar tu dirección de email, para confirmar que es correcta, debes hacer clic en el
+        enlace de abajo, que te dirigirá a la aplicación
+    </p>
+    <a href="${token}" target="_blank" rel="noopener noreferrer">${token}</a>
+    <p>
+        Muchas gracias,
+    </p>
+    <p>
+        Saludos y mucha suerte!
+    </p>
+</body>
+
+</html>`
+    let data = {
+      name: "no-reply@eurocontest", // sender address
+      subject: `Confirma tu email 🚀`, // Subject line
+      htmlBody: htmlEmailBody, // html body
+    }
+    emailService.sendConfirmEmail(data, emailReceiver)
   }
 
   async updateImage(id, data) {

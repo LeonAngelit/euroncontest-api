@@ -12,6 +12,7 @@ const image = Joi.string();
 const winnerOption = Joi.boolean();
 const selection = Joi.array();
 const color = Joi.string();
+const email = Joi.string().email();
 
 const createUserSchema = Joi.object({
   username: name.required(),
@@ -24,6 +25,7 @@ const updateUserSchema = Joi.object({
   token: token,
   color: color,
   image: image,
+  email: email,
 });
 
 const getUserSchema = Joi.object({
