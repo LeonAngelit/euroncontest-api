@@ -6,7 +6,7 @@ const EmailService = require('../utils/email.util');
 const emailService = new EmailService();
 const imagesService = new ImagesService();
 const jsonwebtoken = require('jsonwebtoken');
-const { Timestamp } = require('mongodb');
+const  config  = require('../config/config');
 
 class UserService {
   constructor() {
@@ -280,9 +280,9 @@ class UserService {
 <body>
     <p>
         Hola! Has solicitado actualizar tu dirección de email, para confirmar que es correcta, debes hacer clic en el
-        enlace de abajo, que te dirigirá a la aplicación
+        enlace de abajo 👇, que te dirigirá a la aplicación
     </p>
-    <a href="${token}" target="_blank" rel="noopener noreferrer">${token}</a>
+    <a href="${config.confirmEmailUrl}${token}" target="_blank" rel="noopener noreferrer">Confirma tu email aquí</a>
     <p>
         Muchas gracias,
     </p>
