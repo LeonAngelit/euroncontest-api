@@ -14,6 +14,7 @@ const {
   bulkAddCountrySchema,
 } = require('./../schemas/user.schema');
 const upload = multer({ storage: multer.memoryStorage() });
+const config = require('../config/config')
 
 router.get('/', jwtAuth('headers'), async (req, res) => {
   const users = await service.find();
@@ -36,14 +37,42 @@ router.get(
 );
 
 router.get(
+  '/validateEmailSent/:id',
+  jwtAuth('headers'),
+  validatorHandler(getUserSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const response = await service.isEmailSent(id);
+      res.json({
+        emailSent: response
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+router.get(
   '/name/:name',
   jwtAuth('headers'),
   validatorHandler(getUserByNameSchema, 'params'),
   async (req, res, next) => {
     try {
       const { name } = req.params;
-      const user = await service.findOneByName(name);
-      res.json(user);
+      let user;
+      if(config.emailRegex.test(name)){
+        user = await service.findOneByEmail(name);
+        res.json(user);
+      } else if(config.nombreUsuarioRegex.test(name)){
+        user = await service.findOneByName(name);
+        res.json(user);
+      } else {
+        res.status(400).json({
+          error: "Nombre de usuario incorrecto"
+        })
+      }
     } catch (error) {
       next(error);
     }

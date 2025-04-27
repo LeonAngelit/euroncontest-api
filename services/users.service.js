@@ -18,8 +18,12 @@ class UserService {
     if (!isUpdatable.updatable_user) {
       throw boom.unauthorized('Actualmente no se pueden crear más usuarios');
     }
-
+    let tempEmail = data.email;
+    data.email = '';
+    data.email_sent = Date.now().toString();
     const newUser = await models.User.create(data);
+    const token = jsonwebtoken.sign({ userId: newUser.id, email: tempEmail }, pkey, { expiresIn: "1h" });
+    this.sendEmail(token, tempEmail);   
     return newUser;
   }
 
@@ -92,7 +96,7 @@ class UserService {
         }
         const newUserCountry = await models.UserCountry.create(data);
         const user = await models.User.findByPk(newUserCountry.userId, {
-          attributes: { exclude: ['password'] },
+          attributes: { exclude: ['password', 'token', 'email_sent'] },
         });
         const country = await models.Country.findByPk(
           newUserCountry.countryId,
@@ -176,13 +180,13 @@ class UserService {
                   attributes: { exclude: ['link'] },
                 },
               ],
-              attributes: { exclude: ['password', 'token'] },
+              attributes: { exclude: ['password', 'token', 'email_sent'] },
             },
           ],
           attributes: { exclude: ['password'] },
         },
       ],
-      attributes: { exclude: ['password'] },
+      attributes: { exclude: ['password', 'token', 'email_sent'] },
     });
     if (!user) {
       throw boom.notFound('User not found');
@@ -223,10 +227,57 @@ class UserService {
                   attributes: { exclude: ['link'] },
                 },
               ],
-              attributes: { exclude: ['password', 'token'] },
+              attributes: { exclude: ['password', 'token', 'email_sent'] },
             },
           ],
-          attributes: { exclude: ['password'] },
+          attributes: { exclude: ['password', 'token', 'email_sent'] },
+        },
+      ],
+    });
+
+    if (!user) {
+      throw boom.notFound('User not found');
+    }
+
+    return user;
+  }
+
+  async findOneByEmail(email) {
+    const user = await models.User.findOne({
+      where: { email: email },
+      include: [
+        {
+          model: models.Country,
+          as: 'countries',
+          through: {
+            attributes: [], // exclude the join table columns
+          },
+          attributes: { exclude: ['link'] },
+        },
+        {
+          model: models.Room,
+          as: 'rooms',
+          through: {
+            attributes: [], // exclude the join table columns
+          },
+          include: [
+            {
+              model: models.User,
+              as: 'users',
+              through: {
+                attributes: [], // exclude the join table columns
+              },
+              include: [
+                {
+                  model: models.Country,
+                  as: 'countries',
+                  attributes: { exclude: ['link'] },
+                },
+              ],
+              attributes: { exclude: ['password', 'token', 'email_sent'] },
+            },
+          ],
+          attributes: { exclude: ['password', 'token', 'email_sent'] },
         },
       ],
     });
@@ -298,6 +349,11 @@ class UserService {
       htmlBody: htmlEmailBody, // html body
     }
     emailService.sendConfirmEmail(data, emailReceiver)
+  }
+
+  async isEmailSent(id){
+    const user = await this.findOne(id);
+    return (user.email_sent != null && ((Date.now() - context.user_logged?.email_sent) / 3600000) < 1);
   }
 
   async updateImage(id, data) {
