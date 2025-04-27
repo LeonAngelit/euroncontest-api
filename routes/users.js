@@ -53,6 +53,23 @@ router.get(
   }
 );
 
+router.get(
+  '/validateToken/:id',
+  jwtAuth('headers'),
+  validatorHandler(getUserSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const response = await service.validateToken(id);
+      res.json({
+        isValidToken: response
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 
 router.get(
   '/name/:name',

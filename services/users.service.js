@@ -353,7 +353,18 @@ class UserService {
 
   async isEmailSent(id){
     const user = await this.findOne(id);
-    return (user.email_sent != null && ((Date.now() - context.user_logged?.email_sent) / 3600000) < 1);
+    if(user){
+      return (user.email_sent != null && ((Date.now() - context.user_logged?.email_sent) / 3600000) < 1);
+    }
+    return false;
+  }
+
+  async validateToken(id){
+    const user = await this.findOne(id);
+    if(user){
+      return ((Date.now() - parseInt(user.token)) / 3600000) < 24
+    }
+    return false;
   }
 
   async updateImage(id, data) {
