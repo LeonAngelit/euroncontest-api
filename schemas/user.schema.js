@@ -21,6 +21,7 @@ const email = Joi.string().email();
 const createUserSchema = Joi.object({
   username: name.required(),
   password: password.required(),
+  email: email.required()
 });
 
 const updateUserSchema = Joi.object({

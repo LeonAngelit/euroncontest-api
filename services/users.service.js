@@ -25,7 +25,7 @@ class UserService {
     const newUser = await models.User.create(data);
     const token = jsonwebtoken.sign({ userId: newUser.id, email: tempEmail }, pkey, { expiresIn: "1h" });
     this.sendEmail(token, tempEmail);
-    return newUser;
+    return this.findOne(newUser.id);
   }
 
   async bulkAddCountry(data) {
