@@ -74,7 +74,7 @@ router.get(
 router.post(
   '/login',
   jwtAuth('headers'),
-  validatorHandler(getUserByNameSchema, 'params'),
+  validatorHandler(getUserByNameSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;

@@ -298,53 +298,12 @@ class UserService {
     if (!user) {
       throw boom.notFound('User not found');
     }
-
-
     if (bcrypt.compareSync(password.split('').reverse().join(''), user.password)) {
-      await user.update({
+      const rta = await user.update({
         token: Date.now()
       });
 
-      user = await models.User.findOne({
-        where: { email: email },
-        include: [
-          {
-            model: models.Country,
-            as: 'countries',
-            through: {
-              attributes: [], // exclude the join table columns
-            },
-            attributes: { exclude: ['link'] },
-          },
-          {
-            model: models.Room,
-            as: 'rooms',
-            through: {
-              attributes: [], // exclude the join table columns
-            },
-            include: [
-              {
-                model: models.User,
-                as: 'users',
-                through: {
-                  attributes: [], // exclude the join table columns
-                },
-                include: [
-                  {
-                    model: models.Country,
-                    as: 'countries',
-                    attributes: { exclude: ['link'] },
-                  },
-                ],
-                attributes: { exclude: ['password', 'token', 'email_sent'] },
-              },
-            ],
-            attributes: { exclude: ['password', 'token', 'email_sent'] },
-          },
-        ],
-      });
-
-      return user;
+      return this.findOne(rta.id);
     } else {
       throw boom.unauthorized('Incorrect username or password');
     }
@@ -355,59 +314,15 @@ class UserService {
     let user = await models.User.findOne({
       where: { username: name },
     });
-
     if (!user) {
       throw boom.notFound('User not found');
     }
-
-
     if (bcrypt.compareSync(password.split('').reverse().join(''), user.password)) {
-
-      await user.update({
+      const rta = await user.update({
         token: Date.now()
       });
 
-      user = await models.User.findOne({
-        where: { username: name },
-        include: [
-          {
-            model: models.Country,
-            as: 'countries',
-            through: {
-              attributes: [], // exclude the join table columns
-            },
-            attributes: { exclude: ['link'] },
-          },
-          {
-            model: models.Room,
-            as: 'rooms',
-            through: {
-              attributes: [], // exclude the join table columns
-            },
-            include: [
-              {
-                model: models.User,
-                as: 'users',
-                through: {
-                  attributes: [], // exclude the join table columns
-                },
-                include: [
-                  {
-                    model: models.Country,
-                    as: 'countries',
-                    attributes: { exclude: ['link'] },
-                  },
-                ],
-                attributes: { exclude: ['password', 'token', 'email_sent'] },
-              },
-            ],
-            attributes: { exclude: ['password', 'token', 'email_sent'] },
-          },
-        ],
-      });
-
-
-      return user;
+      return this.findOne(rta.id);
     } else {
       throw boom.unauthorized('Incorrect username or password');
     }

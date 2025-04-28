@@ -38,6 +38,7 @@ const getUserSchema = Joi.object({
 
 const getUserByNameSchema = Joi.object({
   name: name.required(),
+  password: password.required()
 });
 
 const addCountrySchema = Joi.object({
