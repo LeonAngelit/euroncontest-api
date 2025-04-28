@@ -3,9 +3,13 @@ const config = require('../config/config');
 
 const regexPass = config.passwordRegex;
 const userNameRegex = config.nombreUsuarioRegex;
+const emailRegex = config.emailRegex
 
 const id = Joi.number();
-const name = Joi.string().regex(userNameRegex);
+const name = Joi.alternatives().try(
+  Joi.string().pattern(userNameRegex),
+  Joi.string().pattern(emailRegex)
+);
 const password = Joi.string().regex(regexPass);
 const token = Joi.string().min(8);
 const image = Joi.string();

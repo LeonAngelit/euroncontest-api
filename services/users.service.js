@@ -6,7 +6,8 @@ const EmailService = require('../utils/email.util');
 const emailService = new EmailService();
 const imagesService = new ImagesService();
 const jsonwebtoken = require('jsonwebtoken');
-const  config  = require('../config/config');
+const config = require('../config/config');
+const bcrypt = require("bcrypt");
 
 class UserService {
   constructor() {
@@ -23,7 +24,7 @@ class UserService {
     data.email_sent = Date.now().toString();
     const newUser = await models.User.create(data);
     const token = jsonwebtoken.sign({ userId: newUser.id, email: tempEmail }, pkey, { expiresIn: "1h" });
-    this.sendEmail(token, tempEmail);   
+    this.sendEmail(token, tempEmail);
     return newUser;
   }
 
@@ -289,6 +290,130 @@ class UserService {
     return user;
   }
 
+  async loginByEmail(email, password) {
+    let user = await models.User.findOne({
+      where: { email: email },
+    });
+
+    if (!user) {
+      throw boom.notFound('User not found');
+    }
+
+
+    if (bcrypt.compareSync(password.split('').reverse().join(''), user.password)) {
+      await user.update({
+        token: Date.now()
+      });
+
+      user = await models.User.findOne({
+        where: { email: email },
+        include: [
+          {
+            model: models.Country,
+            as: 'countries',
+            through: {
+              attributes: [], // exclude the join table columns
+            },
+            attributes: { exclude: ['link'] },
+          },
+          {
+            model: models.Room,
+            as: 'rooms',
+            through: {
+              attributes: [], // exclude the join table columns
+            },
+            include: [
+              {
+                model: models.User,
+                as: 'users',
+                through: {
+                  attributes: [], // exclude the join table columns
+                },
+                include: [
+                  {
+                    model: models.Country,
+                    as: 'countries',
+                    attributes: { exclude: ['link'] },
+                  },
+                ],
+                attributes: { exclude: ['password', 'token', 'email_sent'] },
+              },
+            ],
+            attributes: { exclude: ['password', 'token', 'email_sent'] },
+          },
+        ],
+      });
+
+      return user;
+    } else {
+      throw boom.unauthorized('Incorrect username or password');
+    }
+
+  }
+
+  async loginByName(name, password) {
+    let user = await models.User.findOne({
+      where: { username: name },
+    });
+
+    if (!user) {
+      throw boom.notFound('User not found');
+    }
+
+
+    if (bcrypt.compareSync(password.split('').reverse().join(''), user.password)) {
+
+      await user.update({
+        token: Date.now()
+      });
+
+      user = await models.User.findOne({
+        where: { username: name },
+        include: [
+          {
+            model: models.Country,
+            as: 'countries',
+            through: {
+              attributes: [], // exclude the join table columns
+            },
+            attributes: { exclude: ['link'] },
+          },
+          {
+            model: models.Room,
+            as: 'rooms',
+            through: {
+              attributes: [], // exclude the join table columns
+            },
+            include: [
+              {
+                model: models.User,
+                as: 'users',
+                through: {
+                  attributes: [], // exclude the join table columns
+                },
+                include: [
+                  {
+                    model: models.Country,
+                    as: 'countries',
+                    attributes: { exclude: ['link'] },
+                  },
+                ],
+                attributes: { exclude: ['password', 'token', 'email_sent'] },
+              },
+            ],
+            attributes: { exclude: ['password', 'token', 'email_sent'] },
+          },
+        ],
+      });
+
+
+      return user;
+    } else {
+      throw boom.unauthorized('Incorrect username or password');
+    }
+
+  }
+
   async update(id, data) {
     const user = await models.User.findOne({ where: { id: id } });
     if (data.email && data.email != user.email) {
@@ -304,8 +429,8 @@ class UserService {
   async updateEmail(token) {
     const decoded = jsonwebtoken.verify(token, pkey);
     let data;
-    if(decoded.email){
-        data = {
+    if (decoded.email) {
+      data = {
         email: decoded.email,
       }
     }
@@ -351,17 +476,17 @@ class UserService {
     emailService.sendConfirmEmail(data, emailReceiver)
   }
 
-  async isEmailSent(id){
+  async isEmailSent(id) {
     const user = await this.findOne(id);
-    if(user){
+    if (user) {
       return (user.email_sent != null && ((Date.now() - context.user_logged?.email_sent) / 3600000) < 1);
     }
     return false;
   }
 
-  async validateToken(id){
+  async validateToken(id) {
     const user = await this.findOne(id);
-    if(user){
+    if (user) {
       return ((Date.now() - parseInt(user.token)) / 3600000) < 24
     }
     return false;

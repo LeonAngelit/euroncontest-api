@@ -71,19 +71,18 @@ router.get(
 );
 
 
-router.get(
-  '/name/:name',
+router.post(
+  '/login',
   jwtAuth('headers'),
   validatorHandler(getUserByNameSchema, 'params'),
   async (req, res, next) => {
     try {
-      const { name } = req.params;
-      let user;
-      if(config.emailRegex.test(name)){
-        user = await service.findOneByEmail(name);
+      const body = req.body;
+      if(config.emailRegex.test(body.name)){
+        user = await service.loginByEmail(body.name, body.password);
         res.json(user);
-      } else if(config.nombreUsuarioRegex.test(name)){
-        user = await service.findOneByName(name);
+      } else if(config.nombreUsuarioRegex.test(body.name)){
+        user = await service.loginByName(body.name, body.password);
         res.json(user);
       } else {
         res.status(400).json({
@@ -97,7 +96,7 @@ router.get(
 );
 
 router.post(
-  '/',
+  '/signup',
   jwtAuth('headers'),
   validatorHandler(createUserSchema, 'body'),
   async (req, res, next) => {
