@@ -342,19 +342,30 @@ class UserService {
   }
 
   async updateEmail(token) {
-    const decoded = jsonwebtoken.verify(token, pkey);
-    let data;
-    if (decoded.email) {
-      data = {
-        email: decoded.email,
+    try {
+      const decoded = jsonwebtoken.verify(token, pkey);
+  
+      if (!decoded.email || !decoded.userId) {
+        throw boom.unauthorized('Invalid token');
       }
-    }
-    if (decoded.userId) {
+  
       const user = await models.User.findOne({ where: { id: decoded.userId } });
+      if (!user) {
+        throw boom.notFound('User not found');
+      }
+  
+      const data = { email: decoded.email };
       const rta = await user.update(data);
       return this.findOne(rta.id);
-    } else {
-      throw boom.unauthorized('Invalid token');
+  
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw boom.unauthorized('Token has expired');
+      }
+      if (error.name === 'JsonWebTokenError') {
+        throw boom.unauthorized('Invalid token');
+      }
+      throw error; // rethrow other unexpected errors
     }
   }
 
