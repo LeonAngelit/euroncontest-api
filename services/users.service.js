@@ -400,7 +400,7 @@ class UserService {
   }
 
   async validateToken(id) {
-    const user = await this.findOne(id);
+    const user = await models.User.findByPk(id)
     if (user) {
       return ((Date.now() - parseInt(user.token)) / 3600000) < 24
     }
