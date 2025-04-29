@@ -54,6 +54,24 @@ router.get(
 );
 
 router.get(
+  '/isEmailPresent/:id',
+  jwtAuth('headers'),
+  validatorHandler(getUserSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const response = await service.isEmailPresent(id);
+      res.json({
+        emailPresent: response
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+router.get(
   '/validateToken/:id',
   jwtAuth('headers'),
   validatorHandler(getUserSchema, 'params'),

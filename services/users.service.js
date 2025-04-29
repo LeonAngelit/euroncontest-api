@@ -344,20 +344,20 @@ class UserService {
   async updateEmail(token) {
     try {
       const decoded = jsonwebtoken.verify(token, pkey);
-  
+
       if (!decoded.email || !decoded.userId) {
         throw boom.unauthorized('Invalid token');
       }
-  
+
       const user = await models.User.findOne({ where: { id: decoded.userId } });
       if (!user) {
         throw boom.notFound('User not found');
       }
-  
+
       const data = { email: decoded.email };
       const rta = await user.update(data);
       return this.findOne(rta.id);
-  
+
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
         throw boom.unauthorized('Token has expired');
@@ -403,9 +403,17 @@ class UserService {
   }
 
   async isEmailSent(id) {
-    const user = await this.findOne(id);
+    const user = await models.User.findByPk(id);
     if (user) {
-      return (user.email_sent != null && ((Date.now() - context.user_logged?.email_sent) / 3600000) < 1);
+      return (((Date.now() - user?.email_sent) / 3600000) < 1);
+    }
+    return false;
+  }
+
+  async isEmailPresent(id) {
+    const user = await models.User.findByPk(id);
+    if (user) {
+      return user.email != null;
     }
     return false;
   }
