@@ -144,7 +144,7 @@ class UserService {
           attributes: { exclude: ['id', 'userId', 'winnerOption'] },
         },
       ],
-      attributes: { exclude: ['password'] },
+      attributes: { exclude: ['password', 'email', 'email_sent', 'token'] },
     });
     return rta;
   }
