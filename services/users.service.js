@@ -19,11 +19,19 @@ class UserService {
     if (!isUpdatable.updatable_user) {
       throw boom.unauthorized('Actualmente no se pueden crear más usuarios');
     }
-    const user = await models.User.findOne({
+    let user = await models.User.findOne({
       where: { email: data.email }});
     if(user){
       throw boom.conflict("Invalid email")
     }
+
+    user = await models.User.findOne({
+      where: { username: data.username }});
+
+    if(user){
+      throw boom.conflict("Invalid username")
+    }
+
     let tempEmail = data.email;
     data.email = null;
     data.email_sent = Date.now().toString();

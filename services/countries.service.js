@@ -130,8 +130,6 @@ class CountryService {
 					song: countries[i].song,
 				});
 			} catch (error) {
-				console.log(error);
-				console.log("creating");
 				this.create(countries[i]);
 			}
 		}
@@ -178,7 +176,7 @@ class CountryService {
 					link: links[countries[i].name],
 				});
 			} catch (error) {
-				console.log(error);
+				return error.message
 			}
 		}
 	}
