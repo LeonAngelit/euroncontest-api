@@ -19,6 +19,11 @@ class UserService {
     if (!isUpdatable.updatable_user) {
       throw boom.unauthorized('Actualmente no se pueden crear más usuarios');
     }
+    const user = await models.User.findOne({
+      where: { email: data.email }});
+    if(user){
+      throw boom.conflict("Invalid email")
+    }
     let tempEmail = data.email;
     data.email = null;
     data.email_sent = Date.now().toString();
@@ -350,7 +355,13 @@ class UserService {
         throw boom.unauthorized('Invalid token');
       }
 
-      const user = await models.User.findOne({ where: { id: decoded.userId } });
+      let user = await models.User.findOne({
+        where: { email: data.email }});
+      if(user){
+        throw boom.conflict("Invalid email")
+      }
+
+      user = await models.User.findOne({ where: { id: decoded.userId } });
       if (!user) {
         throw boom.notFound('User not found');
       }

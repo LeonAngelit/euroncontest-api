@@ -16,7 +16,7 @@ const config = {
   mailPass: process.env.MAIL_PASS,
   userMail: process.env.USER_MAIL,
   confirmEmailUrl: process.env.CONFIRM_EMAIL_URL,
-  nombreUsuarioRegex: /^(?=.{5,25}$)[a-zA-Z0-9_]+(?:[\s][a-zA-Z0-9]+)*$/,
+  nombreUsuarioRegex: /^(?=.{5,25}$)[a-zA-Z0-9_]+(?:[a-zA-Z0-9]+)*$/,
   emailRegex: /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/,
   passwordRegex: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/,
   mongoRSName: process.env.MONGO_RS_NAME,
