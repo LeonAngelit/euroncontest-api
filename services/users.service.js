@@ -35,11 +35,11 @@ class UserService {
 
     let tempEmail = data.email;
     data.email = null;
-    data.email_sent = Date.now().toString();
-    data.token = Date.now().toString();
     const newUser = await models.User.create(data);
     const token = jsonwebtoken.sign({ userId: newUser.id, email: tempEmail }, pkey, { expiresIn: "1h" });
-    this.sendEmail(token, tempEmail);
+    await this.sendEmail(token, tempEmail);
+    data.email_sent = Date.now().toString();
+    data.token = Date.now().toString();
     return this.findOne(newUser.id);
   }
 
