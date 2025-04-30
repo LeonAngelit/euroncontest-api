@@ -19,6 +19,7 @@ class UserService {
     if (!isUpdatable.updatable_user) {
       throw boom.unauthorized('Actualmente no se pueden crear más usuarios');
     }
+
     let user = await models.User.findOne({
       where: { email: data.email }});
     if(user){
@@ -364,7 +365,8 @@ class UserService {
       }
 
       let user = await models.User.findOne({
-        where: { email: data.email }});
+        where: { email: decoded.email }});
+
       if(user){
         throw boom.conflict("Invalid email")
       }
@@ -419,7 +421,14 @@ class UserService {
       subject: `Confirma tu email 🚀`, // Subject line
       htmlBody: htmlEmailBody, // html body
     }
-    emailService.sendConfirmEmail(data, emailReceiver)
+    const response = await emailService.sendConfirmEmail(data, emailReceiver)
+    if(response == 1){
+      return response
+    } else {
+      throw boom.badData({
+        message: response
+      })
+    }
   }
 
   async isEmailSent(id) {
