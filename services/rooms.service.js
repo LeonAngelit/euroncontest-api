@@ -65,11 +65,19 @@ class RoomService {
               attributes: { exclude: ['id', 'userId', 'winnerOption'] },
             },
           ],
-          attributes: { exclude: ['password', 'token', 'email', 'email_sent'] },
+          attributes: { exclude: ['password', 'token', 'email_sent'] },
         },
       ],
       attributes: { exclude: ['password'] },
+      order: [[{
+        model
+          : models.User, as: 'users'
+      }, 'points', 'DESC']],
     });
+    rooms.map(room => {
+      room.users = room.users.filter(user => user.countries.length === 5);
+    })
+    
     return rooms;
   }
 
@@ -111,6 +119,7 @@ class RoomService {
     if (!room) {
       throw boom.notFound('Room not found');
     }
+    room.users = room.users.filter(user => user.countries.length === 5);
     return room;
   }
 

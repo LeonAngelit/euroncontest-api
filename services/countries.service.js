@@ -3,9 +3,17 @@ const { models } = require("../lib/sequelize");
 const PuppeteerService = require("../utils/puppeteer.util");
 const UpdatableService = require("./updatable.service");
 const UserService = require("./users.service");
+const RoomsService = require("./rooms.service");
+const EmailService = require('../utils/email.util');
+const emailService = new EmailService();
 const userService = new UserService();
 const updatableService = new UpdatableService();
 const findService = new PuppeteerService();
+const roomsService = new RoomsService();
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+
 
 class CountryService {
 	constructor() {
@@ -64,9 +72,8 @@ class CountryService {
 		}
 		url =
 			process.env.BASE_URL +
-			`${
-				(year - process.env.FIRST_YEAR) * 10 +
-				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			`${(year - process.env.FIRST_YEAR) * 10 +
+			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
 		const countries = await findService.find(url);
 		for (let i = 0; i < countries.length; i++) {
@@ -81,9 +88,8 @@ class CountryService {
 		}
 		url =
 			process.env.BASE_URL +
-			`${
-				(year - process.env.FIRST_YEAR) * 10 +
-				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			`${(year - process.env.FIRST_YEAR) * 10 +
+			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
 		const countries = await findService.find(url);
 		return countries;
@@ -96,9 +102,8 @@ class CountryService {
 		}
 		url =
 			process.env.BASE_URL +
-			`${
-				(year - process.env.FIRST_YEAR) * 10 +
-				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			`${(year - process.env.FIRST_YEAR) * 10 +
+			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
 		await findService.open(url);
 		return 200;
@@ -113,11 +118,10 @@ class CountryService {
 		}
 		url =
 			process.env.BASE_URL +
-			`${
-				(year - process.env.FIRST_YEAR) * 10 +
-				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			`${(year - process.env.FIRST_YEAR) * 10 +
+			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
-		if(resetNeeded){
+		if (resetNeeded) {
 			await models.Country.truncate({ restartIdentity: true, cascade: true });
 		}
 		const countries = await findService.find(url);
@@ -133,24 +137,60 @@ class CountryService {
 				this.create(countries[i]);
 			}
 		}
-		if(resetNeeded){
+		if (resetNeeded) {
 			await this.updateLinks(year);
 			await updatableService.set({ last_updated_year: parseInt(year) });
 		}
-		
-		const users = await userService.find();		
-		users.map(async user => {	
+
+		const users = await userService.find();
+		users.map(async user => {
 			let totalPoints = 0;
 			user.countries.forEach(country => {
-				if(country.id === user.winnerOption[0].countryId){
+				if (country.id === user.winnerOption[0].countryId) {
 					totalPoints += parseInt(country.points + country.points * 0.1);
 				} else {
 					totalPoints += parseInt(country.points);
 				}
-					
+
 			});
-			await user.update( { points: totalPoints });
+			await user.update({ points: totalPoints });
 		});
+
+		const rooms = await roomsService.find();
+		rooms.forEach(async room => {
+				let data = room.users[0].dataValues;
+				const today = new Date();
+				const formatted = new Intl.DateTimeFormat('en-GB').format(today);
+				let formattedCountries = [];
+				let countries = data.countries.map(country => {
+					return {
+						id: country.id,
+						name: country.name,
+						position: country.position,
+						points: country.points
+					}
+				});
+				countries.sort((a, b) => a.position - b.position);
+				countries.forEach(country => {
+					let baseString = `${country.name}: ${country.points} puntos`
+					if(country.position == 1){
+						baseString += ' - país ganador'
+					}
+					if(country.id == data.winnerOption[0].dataValues.countryId){
+						baseString += ' - opción ganadora'
+					}
+					formattedCountries.push(baseString);
+				})  
+				const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
+					name: `${data.username}`,
+					score: `${data.points}`,
+					date: `${formatted}`,
+					countries: formattedCountries,
+				  }, { responseType: "arraybuffer" });  // Ens
+				  const pdfPath = path.join(__dirname, "temp.pdf");
+				  fs.writeFileSync(pdfPath, response.data);
+				  await this.sendWinnerEmail(pdfPath, data.username, room.name, data.email);	
+		})
 	}
 
 	async updateLinks(year) {
@@ -160,9 +200,8 @@ class CountryService {
 		}
 		url =
 			process.env.BASE_URL +
-			`${
-				(year - process.env.FIRST_YEAR) * 10 +
-				parseInt(process.env.FIRST_YEAR_SCRIPT)
+			`${(year - process.env.FIRST_YEAR) * 10 +
+			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
 		const countries = await findService.find(url);
 		const links = await findService.findLinks(
@@ -180,6 +219,47 @@ class CountryService {
 			}
 		}
 	}
+
+	  async sendWinnerEmail(filePath, user, roomName, emailReceiver){
+		const htmlEmailBody = `<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Confirma tu email</title>
+		</head>
+		
+		<body>
+			<p>
+				Enhorabuena ${user}! Aquí tienes tu certificado por haber ganado en la sala ${roomName}
+			</p>
+			<p>
+				Muchas gracias por haber participado!
+			</p>
+		</body>
+		</html>`
+			let data = {
+			  name: "no-reply@eurocontest", // sender address
+			  subject: `Enhorabuena! 🎉`, // Subject line
+			  htmlBody: htmlEmailBody, 
+			  attachments: [
+				{
+				  filename: `diploma_${user}.pdf`,
+				  path: filePath,
+				  contentType: "application/pdf",
+				},
+			  ],// html body
+			}
+			const response = await emailService.sendCongratsEmail(data, emailReceiver)
+			if(response == 1){
+			  return response
+			} else {
+			  throw boom.badData({
+				message: response
+			  })
+			}
+	
+	  }
 }
 
 module.exports = CountryService;

@@ -160,6 +160,18 @@ class UserService {
       ],
       attributes: { exclude: ['password', 'email', 'email_sent', 'token'] },
     });
+
+   /* const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
+      name: "patata",
+      score: "9999",
+      date: "01/05/2025",
+      countries: ["pais 1", "pais 2", "pais 3", "pais 4", "pais 5"],
+    }, { responseType: "arraybuffer" });  // Ens
+    const pdfPath = path.join(__dirname, "temp.pdf");
+    fs.writeFileSync(pdfPath, response.data);
+
+    await this.sendWinnerEmail(pdfPath, rta[0].username, "patata", "agleondev@gmail.com")*/
+    
     return rta;
   }
 
@@ -414,7 +426,6 @@ class UserService {
         Saludos y mucha suerte!
     </p>
 </body>
-
 </html>`
     let data = {
       name: "no-reply@eurocontest", // sender address
