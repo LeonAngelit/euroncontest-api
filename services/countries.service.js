@@ -11,9 +11,6 @@ const updatableService = new UpdatableService();
 const findService = new PuppeteerService();
 const roomsService = new RoomsService();
 const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
-
 
 class CountryService {
 	constructor() {
@@ -187,10 +184,8 @@ class CountryService {
 					date: `${formatted}`,
 					countries: formattedCountries,
 				  }, { responseType: "arraybuffer" });  // Ens
-				  const pdfPath = path.join(__dirname, "temp.pdf");
-				  console.log(pdfPath)
-				  fs.writeFileSync(pdfPath, response.data);
-				  await this.sendWinnerEmail(pdfPath, data.username, room.name, data.email);	
+				  const pdfBuffer = Buffer.from(response.data);
+				  await this.sendWinnerEmail(pdfBuffer, data.username, room.name, data.email);	
 		})
 	}
 
@@ -246,7 +241,7 @@ class CountryService {
 			  attachments: [
 				{
 				  filename: `diploma_${user}.pdf`,
-				  path: filePath,
+				  contet: filePath,
 				  contentType: "application/pdf",
 				},
 			  ],// html body
