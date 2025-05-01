@@ -188,6 +188,7 @@ class CountryService {
 					countries: formattedCountries,
 				  }, { responseType: "arraybuffer" });  // Ens
 				  const pdfPath = path.join(__dirname, "temp.pdf");
+				  console.log(pdfPath)
 				  fs.writeFileSync(pdfPath, response.data);
 				  await this.sendWinnerEmail(pdfPath, data.username, room.name, data.email);	
 		})
