@@ -4,11 +4,17 @@ const ArchiveService = require('../services/archive.service');
 const { authp, pkey } = require('../config/config');
 const archiveService = new ArchiveService();
 const jsonwebtoken = require('jsonwebtoken');
+const UserService = require('./users.service');
+const userService = new UserService();
 
 class RoomService {
   constructor() { }
 
   async create(data) {
+    let room = this.findOneByName(data.name);
+    if (room) {
+      throw boom.conflict("Invalid room name")
+    }
     const newRoom = await models.Room.create(data);
     await this.addUser({
       roomId: newRoom.id,
@@ -17,15 +23,50 @@ class RoomService {
     return newRoom;
   }
 
-  async addUser(data) {
-    const newRoomUser = await models.RoomUser.create(data);
-    const room = await this.findOne(newRoomUser.roomId);
-    const user = await models.User.findByPk(newRoomUser.userId);
-    const response = {
-      room,
-      user,
-    };
-    return response;
+  async loginByRoomName(name, password, userId) {
+    let room = await models.Room.findOne({
+      where: { name: name },
+    });
+    if (!room) {
+      throw boom.notFound('Room not found');
+    }
+    if (bcrypt.compareSync(password.split('').reverse().join(''), room.password)) {
+      const newRoomUser = await models.RoomUser.create({
+        roomId: id,
+        userId: userId
+      });
+      room = await this.findOne(newRoomUser.roomId);
+      const user = await userService.findOne(newRoomUser.userId);
+      const response = {
+        room,
+        user,
+      };
+      return response;
+    } else {
+      throw boom.unauthorized('Incorrect room name or password');
+    }
+  }
+
+  async loginByRoomId(id, password, userId) {
+    let room = await models.Room.findByPk(id);
+    if (!room) {
+      throw boom.notFound('Room not found');
+    }
+    if (bcrypt.compareSync(password.split('').reverse().join(''), room.password)) {
+      const newRoomUser = await models.RoomUser.create({
+        roomId: id,
+        userId: userId
+      });
+      room = await this.findOne(newRoomUser.roomId);
+      const user = await userService.findOne(newRoomUser.userId);
+      const response = {
+        room,
+        user,
+      };
+      return response;
+    } else {
+      throw boom.unauthorized('Incorrect room name or password');
+    }
   }
 
   async removeUser(data) {
@@ -77,7 +118,7 @@ class RoomService {
     rooms.map(room => {
       room.users = room.users.filter(user => user.countries.length === 5);
     })
-    
+
     return rooms;
   }
 
@@ -119,7 +160,7 @@ class RoomService {
     if (!room) {
       throw boom.notFound('Room not found');
     }
-    room.users = room.users.filter(user => user.countries.length === 5);
+    room.dataValues.users = room.users.filter(user => user.dataValues.countries.length === 5);
     return room;
   }
 
@@ -199,23 +240,44 @@ class RoomService {
     }
   }
 
-  async generateRoomToken(id){
-   const room = await this.findOne(id);
-    if(room){
+  async generateRoomToken(id) {
+    const room = await this.findOne(id);
+    if (room) {
       const token = jsonwebtoken.sign({ roomId: id, auth: authp }, pkey, { expiresIn: "24h" });
-    return token;
-    } else{
+      return token;
+    } else {
       throw boom.notFound('Room not found');
     }
   }
 
-  async verifyRoomToken(token){
-    const decoded = jsonwebtoken.verify(token, pkey);
-    if(decoded.auth === authp){
-      return decoded.roomId;
-    } else{
-      throw boom.unauthorized('Invalid token');
+  async verifyRoomToken(token, userId) {
+    try {
+      const decoded = jsonwebtoken.verify(token, pkey);
+      if (decoded.auth === authp) {
+        const newRoomUser = await models.RoomUser.create({
+          roomId: decoded.roomId,
+          userId: userId
+        });
+        room = await this.findOne(newRoomUser.roomId);
+        const user = await userService.findOne(newRoomUser.userId);
+        const response = {
+          room,
+          user,
+        };
+        return response;
+      } else {
+        throw boom.unauthorized('Invalid token');
+      }
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw boom.unauthorized('Token has expired');
+      }
+      if (error.name === 'JsonWebTokenError') {
+        throw boom.unauthorized('Invalid token');
+      }
+      throw error; // rethrow other unexpected errors
     }
+
   }
 }
 

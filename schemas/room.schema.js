@@ -21,6 +21,7 @@ const updateRoomSchema = Joi.object({
 });
 
 const getRoomSchema = Joi.object({
+  userId: id.required(),
   id: id.required(),
 });
 
@@ -29,7 +30,9 @@ const getRoomByNameSchema = Joi.object({
 });
 
 const addUserSchema = Joi.object({
-  roomId: id.required(),
+  roomId: id,
+  roomName: name.required(),
+  password: password.required(),
   userId: id.required(),
 });
 

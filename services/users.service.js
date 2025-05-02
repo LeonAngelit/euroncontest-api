@@ -21,26 +21,30 @@ class UserService {
     }
 
     let user = await models.User.findOne({
-      where: { email: data.email }});
-    if(user){
+      where: { email: data.email }
+    });
+    if (user) {
       throw boom.conflict("Invalid email")
     }
 
     user = await models.User.findOne({
-      where: { username: data.username }});
+      where: { username: data.username }
+    });
 
-    if(user){
+    if (user) {
       throw boom.conflict("Invalid username")
     }
 
     let tempEmail = data.email;
     data.email = null;
-    const newUser = await models.User.create(data);
+    let newUser = await models.User.create(data);
     const token = jsonwebtoken.sign({ userId: newUser.id, email: tempEmail }, pkey, { expiresIn: "1h" });
     await this.sendEmail(token, tempEmail);
     data.email_sent = Date.now().toString();
     data.token = Date.now().toString();
-    return this.findOne(newUser.id);
+    const highLevelToken = jsonwebtoken.sign({ userId: newUser.id, password: data.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
+    user = await this.findOne(newUser.id);
+    return { user: user, token: highLevelToken }
   }
 
   async bulkAddCountry(data) {
@@ -161,17 +165,17 @@ class UserService {
       attributes: { exclude: ['password', 'email', 'email_sent', 'token'] },
     });
 
-   /* const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
-      name: "patata",
-      score: "9999",
-      date: "01/05/2025",
-      countries: ["pais 1", "pais 2", "pais 3", "pais 4", "pais 5"],
-    }, { responseType: "arraybuffer" });  // Ens
-    const pdfPath = path.join(__dirname, "temp.pdf");
-    fs.writeFileSync(pdfPath, response.data);
+    /* const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
+       name: "patata",
+       score: "9999",
+       date: "01/05/2025",
+       countries: ["pais 1", "pais 2", "pais 3", "pais 4", "pais 5"],
+     }, { responseType: "arraybuffer" });  // Ens
+     const pdfPath = path.join(__dirname, "temp.pdf");
+     fs.writeFileSync(pdfPath, response.data);
+ 
+     await this.sendWinnerEmail(pdfPath, rta[0].username, "patata", "agleondev@gmail.com")*/
 
-    await this.sendWinnerEmail(pdfPath, rta[0].username, "patata", "agleondev@gmail.com")*/
-    
     return rta;
   }
 
@@ -329,10 +333,11 @@ class UserService {
       const rta = await user.update({
         token: Date.now()
       });
-
-      return this.findOne(rta.id);
+      const token = jsonwebtoken.sign({ userId: rta.id, password: user.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
+      user = await this.findOne(rta.id);
+      return { user: user, token: token };
     } else {
-      throw boom.unauthorized('Incorrect username or password');
+      throw boom.unauthorized('Incorrect email or password');
     }
 
   }
@@ -348,8 +353,9 @@ class UserService {
       const rta = await user.update({
         token: Date.now()
       });
-
-      return this.findOne(rta.id);
+      const token = jsonwebtoken.sign({ userId: rta.id, password: user.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
+      user = await this.findOne(rta.id);
+      return { user: user, token: token };
     } else {
       throw boom.unauthorized('Incorrect username or password');
     }
@@ -377,9 +383,10 @@ class UserService {
       }
 
       let user = await models.User.findOne({
-        where: { email: decoded.email }});
+        where: { email: decoded.email }
+      });
 
-      if(user){
+      if (user) {
         throw boom.conflict("Invalid email")
       }
 
@@ -433,7 +440,7 @@ class UserService {
       htmlBody: htmlEmailBody, // html body
     }
     const response = await emailService.sendConfirmEmail(data, emailReceiver)
-    if(response == 1){
+    if (response == 1) {
       return response
     } else {
       throw boom.badData({

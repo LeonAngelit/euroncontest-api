@@ -3,17 +3,17 @@ const UpdatableService = require('../services/updatable.service');
 const router = express.Router();
 const service = new UpdatableService();
 const validatorHandler = require('../midlewares/validator.handler');
-const { jwtAuth } = require('../midlewares/auth.handler');
+const { jwtAuthAdminLevel } = require('../midlewares/auth.handler');
 const { updateAvailableSchema } = require('./../schemas/updatable.schema');
 
-router.get('/', async (req, res) => {
+router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
   const updatable = await service.find();
   res.json(updatable);
 });
 
 router.put(
   '/',
-  jwtAuth('headers'),
+  jwtAuthAdminLevel('headers'),
   validatorHandler(updateAvailableSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -28,7 +28,7 @@ router.put(
 
 router.post(
   '/users',
-  jwtAuth('headers'),
+  jwtAuthAdminLevel('headers'),
   validatorHandler(updateAvailableSchema, 'body'),
   async (req, res, next) => {
     try {

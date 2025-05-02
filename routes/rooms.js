@@ -3,7 +3,7 @@ const RoomService = require('../services/rooms.service');
 const router = express.Router();
 const service = new RoomService();
 const validatorHandler = require('../midlewares/validator.handler');
-const { jwtAuth } = require('../midlewares/auth.handler');
+const { jwtAuth, jwtAuthHighLevel, jwtAuthAdminLevel } = require('../midlewares/auth.handler');
 const {
   createRoomSchema,
   getRoomSchema,
@@ -12,20 +12,26 @@ const {
   addUserSchema,
 } = require('./../schemas/room.schema');
 
-router.get('/', jwtAuth('headers'), async (req, res) => {
+router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
   const rooms = await service.find();
   res.json(rooms);
 });
 
 router.get(
-  '/:id',
-  jwtAuth('headers'),
+  '/:roomId/:id',
+  jwtAuthHighLevel('headers', 'params'),
   validatorHandler(getRoomSchema, 'params'),
   async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const room = await service.findOne(id);
-      res.json(room);
+      const { roomId, id } = req.params;
+      const room = await service.findOne(roomId);
+      filteredRoom = room.users.filter(user => user.id == id);
+      if (filteredRoom.length > 0) {
+        res.json(room);
+      } else {
+        res.status(401).json({ error: "User not authorized to get this room" })
+      }
+
     } catch (error) {
       next(error);
     }
@@ -46,26 +52,32 @@ router.get(
     }
   }
 );
-router.get('/archive/export/:year', jwtAuth('headers'), async (req, res) => {
+router.get('/archive/export/:year', jwtAuthAdminLevel('headers'), async (req, res) => {
   const { year } = req.params;
   const rooms = await service.exportResultsToMongo(year);
   res.json(rooms);
 }
 );
 
-router.get('/generateRoomToken/:id', jwtAuth('headers'), async (req, res) => {
-  const { id } = req.params;
-  const token = await service.generateRoomToken(id);
-  res.json(token);
+router.get('/generateRoomToken/:roomId/:id', jwtAuthHighLevel('headers', 'params'), async (req, res) => {
+  const { roomId, id } = req.params;
+  filteredRoom = room.users.filter(user => user.id == id);
+  if (filteredRoom.length > 0) {
+    const token = await service.generateRoomToken(roomId);
+    res.json(token);
+  } else {
+    res.status(401).json({ error: "User not authorized to get this room" })
+  }
 }
 );
 
-router.post('/verifyRoomToken', jwtAuth('headers'),
+router.post('/verifyRoomToken/:id', jwtAuthHighLevel('headers', 'params'),
   async (req, res, next) => {
     try {
+      const { userId } = req.params;
       const token = req.body?.token;
-      const roomId = await service.verifyRoomToken(token);
-      res.status(200).json({id: roomId});
+      const roomId = await service.verifyRoomToken(token, userId);
+      res.status(201).json(roomId);
     } catch (error) {
       next(error);
     }
@@ -110,13 +122,13 @@ router.get('/:id/stream', async (req, res) => {
 });
 
 router.post(
-  '/add-user',
-  jwtAuth('headers'),
+  '/login',
+  jwtAuthHighLevel('headers', 'body'),
   validatorHandler(addUserSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
-      const rta = await service.addUser(body);
+      const rta = await service.loginByRoomName(body);
       res.status(201).json(rta);
     } catch (error) {
       next(error);
@@ -126,7 +138,7 @@ router.post(
 
 router.post(
   '/remove-user',
-  jwtAuth('headers'),
+  jwtAuthHighLevel('headers', 'body'),
   validatorHandler(addUserSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -140,16 +152,23 @@ router.post(
 );
 
 router.put(
-  '/:id',
-  jwtAuth('headers'),
+  '/:roomId/:id',
+  jwtAuthHighLevel('headers', 'params'),
   validatorHandler(getRoomSchema, 'params'),
   validatorHandler(updateRoomSchema, 'body'),
   async (req, res, next) => {
     try {
-      const { id } = req.params;
+      const { roomId, id } = req.params;
       const body = req.body;
-      const room = await service.update(id, body);
-      res.json(room);
+      const room = await service.findOne(roomId);
+      if (room.adminId == id) {
+        const room = await service.update(roomId, body);
+        res.json(room);
+      } else {
+        res.status(403).json({
+          error: "Usuario no autorizado para realizar esta acción"
+        })
+      }
     } catch (error) {
       next(error);
     }
@@ -174,14 +193,22 @@ router.patch(
 );
 
 router.delete(
-  '/:id',
-  jwtAuth('headers'),
+  '/:roomId/:id',
+  jwtAuthHighLevel('headers', 'params'),
   validatorHandler(getRoomSchema, 'params'),
   async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const deleted = await service.delete(id);
-      res.json(deleted);
+      const { roomId, id } = req.params;
+      const room = await service.findOne(roomId);
+      if (room.adminId == id) {
+        const deleted = await service.delete(roomId);
+        res.json(deleted);
+      } else {
+        res.status(403).json({
+          error: "Usuario no autorizado para realizar esta acción"
+        })
+      }
+
     } catch (error) {
       next(error);
     }

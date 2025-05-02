@@ -3,6 +3,9 @@ const jwt = require("jsonwebtoken");
 const conf = require("../config/config");
 const bcrypt = require("bcrypt");
 const config = require("../config/config");
+const UpdatableSevice = require("../services/updatable.service");
+const updatableService = new UpdatableSevice();
+const { models } = require('../lib/sequelize');
 
 function jwtAuth(property) {
 	return (req, res, next) => {
@@ -12,6 +15,57 @@ function jwtAuth(property) {
 				next(boom.unauthorized("Unathorized"));
 			}
 			if (!(decoded.auth == `${conf.authp}`)) {
+				next(boom.unauthorized("Unathorized"));
+			}
+		});
+		next();
+	};
+}
+
+function jwtAuthAdminLevel(property) {
+	return async (req, res, next) => {
+		let response = await updatableService.find();
+		const user = await models.User.findByPk(response.id)
+		const data = req[property].bearer;
+		jwt.verify(data, conf.pkey, function (err, decoded) {
+			if (err) {
+				next(boom.unauthorized("Unathorized"));
+			}
+			if (!(decoded.auth == `${conf.authp}`)) {
+				next(boom.unauthorized("Unathorized"));
+			}
+			if(!(decoded.userId == user.id)){
+				next(boom.unauthorized("Unathorized"));
+			}
+			if(!(decoded.password == user.password)){
+				next(boom.unauthorized("Unathorized"));
+			}
+		});
+		next();
+	};
+}
+
+function jwtAuthHighLevel(property, id) {
+	return async (req, res, next) => {
+		const data = req[property].bearer;
+		if(id == 'params'){
+			id = req[id].id
+		} else {
+			id = req[id].userId
+		}
+		
+		const user = await models.User.findByPk(id)
+		jwt.verify(data, conf.pkey, function (err, decoded) {
+			if (err) {
+				next(boom.unauthorized("Unathorized"));
+			}
+			if (!(decoded.auth == `${conf.authp}`)) {
+				next(boom.unauthorized("Unathorized"));
+			}
+			if(!(decoded.userId == user.id)){
+				next(boom.unauthorized("Unathorized"));
+			}
+			if(!(decoded.password == user.password)){
 				next(boom.unauthorized("Unathorized"));
 			}
 		});
@@ -29,4 +83,4 @@ function headerAuth(property) {
 	};
 }
 
-module.exports = { jwtAuth, headerAuth };
+module.exports = { jwtAuth, headerAuth, jwtAuthAdminLevel, jwtAuthHighLevel};

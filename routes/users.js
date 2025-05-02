@@ -3,7 +3,7 @@ const UserService = require('./../services/users.service');
 const router = express.Router();
 const service = new UserService();
 const validatorHandler = require('./../midlewares/validator.handler');
-const { jwtAuth } = require('../midlewares/auth.handler');
+const { jwtAuth, jwtAuthAdminLevel, jwtAuthHighLevel } = require('../midlewares/auth.handler');
 const multer = require("multer");
 const {
   createUserSchema,
@@ -16,14 +16,14 @@ const {
 const upload = multer({ storage: multer.memoryStorage() });
 const config = require('../config/config')
 
-router.get('/', jwtAuth('headers'), async (req, res) => {
+router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
   const users = await service.find();
   res.json(users);
 });
 
 router.get(
   '/:id',
-  jwtAuth('headers'),
+  jwtAuthHighLevel('headers', 'params'),
   validatorHandler(getUserSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -55,7 +55,7 @@ router.get(
 
 router.get(
   '/isEmailPresent/:id',
-  jwtAuth('headers'),
+  jwtAuthHighLevel('headers', 'params'),
   validatorHandler(getUserSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -73,7 +73,7 @@ router.get(
 
 router.get(
   '/validateToken/:id',
-  jwtAuth('headers'),
+  jwtAuthHighLevel('headers', 'params'),
   validatorHandler(getUserSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -130,7 +130,7 @@ router.post(
 
 router.post(
   '/add-country',
-  jwtAuth('headers'),
+  jwtAuthHighLevel('headers', 'body'),
   validatorHandler(addCountrySchema, 'body'),
   async (req, res, next) => {
     try {
@@ -145,7 +145,7 @@ router.post(
 
 router.post(
   '/bulk/add-country',
-  jwtAuth('headers'),
+  jwtAuthHighLevel('headers', 'body'),
   validatorHandler(bulkAddCountrySchema, 'body'),
   async (req, res, next) => {
     try {
@@ -160,6 +160,7 @@ router.post(
 
 router.put(
   '/:id',
+  jwtAuthHighLevel('headers', 'params'),
   validatorHandler(getUserSchema, 'params'),
   validatorHandler(updateUserSchema, 'body'),
   upload.single('image'),
@@ -205,13 +206,13 @@ router.patch(
   }
 );
 
-router.post('/updateUserEmail', jwtAuth('headers'),
+router.post('/updateUserEmail/:id', jwtAuthHighLevel('headers', 'params'),
   async (req, res, next) => {
     try {
       if (req.body?.token) {
         const token = req.body?.token;
         const userId = await service.updateEmail(token);
-        res.status(200).json({ id: userId });
+        res.status(200).json(userId);
       } else {
         res.status(400).json({ error: "Request body is not correct" })
       }

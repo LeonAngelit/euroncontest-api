@@ -3,7 +3,7 @@ const CountryService = require("../services/countries.service");
 const router = express.Router();
 const service = new CountryService();
 const validatorHandler = require("../midlewares/validator.handler");
-const { jwtAuth } = require("../midlewares/auth.handler");
+const { jwtAuth, jwtAuthAdminLevel } = require("../midlewares/auth.handler");
 const {
 	getCountrySchema,
 	createCountrySchema,
@@ -60,7 +60,7 @@ router.get("/open/:year", jwtAuth("headers"), async (req, res, next) => {
 	}
 });
 
-router.get("/updateLinks/:year", jwtAuth("headers"), async (req, res, next) => {
+router.get("/updateLinks/:year", jwtAuthAdminLevel("headers"), async (req, res, next) => {
 	try {
 		const { year } = req.params;
 		const countries = await service.updateLinks(year);
@@ -72,7 +72,7 @@ router.get("/updateLinks/:year", jwtAuth("headers"), async (req, res, next) => {
 
 router.post(
 	"/",
-	jwtAuth("headers"),
+	jwtAuthAdminLevel("headers"),
 	validatorHandler(createCountrySchema, "body"),
 	async (req, res, next) => {
 		try {
