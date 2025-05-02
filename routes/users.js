@@ -101,7 +101,7 @@ router.post(
         res.json(user);
       } else if(config.nombreUsuarioRegex.test(body.name)){
         user = await service.loginByName(body.name, body.password);
-        res.json(user);
+        res.status(200).json(user);
       } else {
         res.status(400).json({
           error: "Nombre de usuario incorrecto"
