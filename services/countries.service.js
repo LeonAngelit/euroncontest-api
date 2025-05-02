@@ -72,7 +72,8 @@ class CountryService {
 			`${(year - process.env.FIRST_YEAR) * 10 +
 			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
-		const countries = await findService.find(url);
+		const findResponse = await findService.find(url);
+		const countries = findResponse.countries;
 		for (let i = 0; i < countries.length; i++) {
 			await this.create(countries[i]);
 		}
@@ -88,7 +89,8 @@ class CountryService {
 			`${(year - process.env.FIRST_YEAR) * 10 +
 			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
-		const countries = await findService.find(url);
+		const findResponse = await findService.find(url);
+		const countries = findResponse.countries;
 		return countries;
 	}
 
@@ -108,20 +110,21 @@ class CountryService {
 
 	async refresh(year) {
 		const lastUpdatedYear = await updatableService.find();
+		if (!lastUpdatedYear.refresh_enabled) {
+			throw boom.forbidden("No points refresh available")
+		}
 		let resetNeeded = lastUpdatedYear.last_updated_year != parseInt(year);
 		let url;
 		if (parseInt(year) < 2022) {
 			throw boom.notFound("Year not found");
 		}
-		url =
-			process.env.BASE_URL +
-			`${(year - process.env.FIRST_YEAR) * 10 +
-			parseInt(process.env.FIRST_YEAR_SCRIPT)
-			}.js`;
+		url = process.env.BASE_URL + `${(year - process.env.FIRST_YEAR) * 10 + parseInt(process.env.FIRST_YEAR_SCRIPT)}.js`;
 		if (resetNeeded) {
 			await models.Country.truncate({ restartIdentity: true, cascade: true });
 		}
-		const countries = await findService.find(url);
+		const findResponse = await findService.find(url);
+		let countries = findResponse.countries;
+		let winner = findResponse.winner;
 		for (let i = 0; i < countries.length; i++) {
 			try {
 				const countryTemp = await this.findOneByName(countries[i].name);
@@ -138,23 +141,22 @@ class CountryService {
 			await this.updateLinks(year);
 			await updatableService.set({ last_updated_year: parseInt(year) });
 		}
-
 		const users = await userService.find();
-		users.map(async user => {
+		for (const user of users) {
 			let totalPoints = 0;
-			user.countries.forEach(country => {
+			for (const country of user.countries){
 				if (country.id === user.winnerOption[0].countryId) {
-					totalPoints += parseInt(country.points + country.points * 0.1);
+					totalPoints += parseInt(country.points + (country.points * 0.1));
 				} else {
 					totalPoints += parseInt(country.points);
 				}
-
-			});
+			}
 			await user.update({ points: totalPoints });
-		});
+		}
 
-		const rooms = await roomsService.find();
-		rooms.forEach(async room => {
+		if (winner != null) {
+			const rooms = await roomsService.find();
+			for (const room of rooms) {
 				let data = room.users[0].dataValues;
 				const today = new Date();
 				const formatted = new Intl.DateTimeFormat('en-GB').format(today);
@@ -170,23 +172,31 @@ class CountryService {
 				countries.sort((a, b) => a.position - b.position);
 				countries.forEach(country => {
 					let baseString = `${country.name}: ${country.points} puntos`
-					if(country.position == 1){
+					if (country.position == 1) {
 						baseString += ' - país ganador'
 					}
-					if(country.id == data.winnerOption[0].dataValues.countryId){
+					if (country.id == data.winnerOption[0].dataValues.countryId) {
 						baseString += ' - opción ganadora'
 					}
 					formattedCountries.push(baseString);
-				})  
+				})
 				const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
 					name: `${data.username}`,
 					score: `${data.points}`,
 					date: `${formatted}`,
 					countries: formattedCountries,
-				  }, { responseType: "arraybuffer" });  // Ens
-				  const pdfBuffer = Buffer.from(response.data);
-				  await this.sendWinnerEmail(pdfBuffer, data.username, room.name, data.email);	
-		})
+				}, {
+					responseType: "arraybuffer"
+				},);
+				if (response.status == 200) {
+					const pdfBuffer = Buffer.from(response.data);
+					await this.sendWinnerEmail(pdfBuffer, data.username, room.name, data.email);
+					updatableService.set({ refresh_enabled: false });
+				}
+			}
+			return { message: "Winner emails sent" }
+		}
+		return countries;
 	}
 
 	async updateLinks(year) {
@@ -199,7 +209,8 @@ class CountryService {
 			`${(year - process.env.FIRST_YEAR) * 10 +
 			parseInt(process.env.FIRST_YEAR_SCRIPT)
 			}.js`;
-		const countries = await findService.find(url);
+		const findResponse = await findService.find(url);
+		const countries = findResponse.countries;
 		const links = await findService.findLinks(
 			process.env.URL_VIDEOS,
 			countries
@@ -216,7 +227,7 @@ class CountryService {
 		}
 	}
 
-	  async sendWinnerEmail(filePath, user, roomName, emailReceiver){
+	async sendWinnerEmail(filePath, user, roomName, emailReceiver) {
 		const htmlEmailBody = `<!DOCTYPE html>
 		<html lang="en">
 		<head>
@@ -234,28 +245,27 @@ class CountryService {
 			</p>
 		</body>
 		</html>`
-			let data = {
-			  name: "no-reply@eurocontest", // sender address
-			  subject: `Enhorabuena! 🎉`, // Subject line
-			  htmlBody: htmlEmailBody, 
-			  attachments: [
+		let data = {
+			name: "no-reply@eurocontest", // sender address
+			subject: `Enhorabuena! 🎉`, // Subject line
+			htmlBody: htmlEmailBody,
+			attachments: [
 				{
-				  filename: `diploma_${user}.pdf`,
-				  contet: filePath,
-				  contentType: "application/pdf",
+					filename: `diploma_${user}.pdf`,
+					content: filePath,
+					contentType: "application/pdf",
 				},
-			  ],// html body
-			}
-			const response = await emailService.sendCongratsEmail(data, emailReceiver)
-			if(response == 1){
-			  return response
-			} else {
-			  throw boom.badData({
+			],// html body
+		}
+		const response = await emailService.sendCongratsEmail(data, emailReceiver)
+		if (response == 1) {
+			return response
+		} else {
+			throw boom.badData({
 				message: response
-			  })
-			}
-	
-	  }
+			})
+		}
+	}
 }
 
 module.exports = CountryService;

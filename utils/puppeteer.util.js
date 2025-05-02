@@ -17,6 +17,7 @@ class PuppeteerService {
         const data = await response.text();
 		let countries = JSON.parse(data.split("voting_table_main = ")[1].split(";")[0]);
 		let songs = JSON.parse(data.split("voting_songs = ")[1].split("};")[0] + "}");
+		let winner = JSON.parse(data.split('"winner":')[1].split(",")[0] );
 		if (countries == undefined) {
 			throw boom.notFound("País no encontrado, revísalo");
 		} else {
@@ -32,7 +33,7 @@ class PuppeteerService {
 					points: countries[i][2] <= 0 ? 0 : countries[i][2],
 				});
 			}
-			return array;
+			return {countries: array, winner: winner};
 		}
 	}
 	async #getLinks(url, countries) {
