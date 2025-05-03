@@ -45,8 +45,9 @@ class UserService {
     } catch (error) {
       throw boom.gatewayTimeout("Error sending email: " + error.toString())
     }
-    user = await user.update({
-      email_sent: Date.now().toString()
+    let email_sent = Date.now().toString();
+    user = await newUser.update({
+      email_sent: email_sent
     });
     const highLevelToken = jsonwebtoken.sign({ userId: newUser.id, password: newUser.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
     user = await this.findOne(newUser.id);
