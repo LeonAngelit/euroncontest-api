@@ -36,17 +36,17 @@ class RoomService {
     return response;
   }
 
-  async loginByRoomName(name, password, userId) {
+  async loginByRoomName(data) {
     let room = await models.Room.findOne({
-      where: { name: name },
+      where: { name: data.roomName },
     });
     if (!room) {
       throw boom.notFound('Room not found');
     }
-    if (bcrypt.compareSync(password.split('').reverse().join(''), room.password)) {
+    if (bcrypt.compareSync(data.password, room.password)) {
       const newRoomUser = await this.addUser({
-        roomId: id,
-        userId: userId
+        roomId: room.id,
+        userId: data.userId
       });
       return newRoomUser;
     } else {
