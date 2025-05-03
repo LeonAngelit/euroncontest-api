@@ -36,10 +36,16 @@ const addUserSchema = Joi.object({
   userId: id.required(),
 });
 
+const removeUserSchema = Joi.object({
+  roomId: id.required(),
+  userId: id.required(),
+});
+
 module.exports = {
   createRoomSchema,
   updateRoomSchema,
   getRoomSchema,
   getRoomByNameSchema,
   addUserSchema,
+  removeUserSchema
 };

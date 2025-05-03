@@ -34,10 +34,10 @@ function jwtAuthAdminLevel(property) {
 			if (!(decoded.auth == `${conf.authp}`)) {
 				next(boom.unauthorized("Unathorized"));
 			}
-			if(!(decoded.userId == user.id)){
+			if (!(decoded.userId == user.id)) {
 				next(boom.unauthorized("Unathorized"));
 			}
-			if(!(decoded.password == user.password)){
+			if (!(decoded.password == user.password)) {
 				next(boom.unauthorized("Unathorized"));
 			}
 		});
@@ -45,30 +45,39 @@ function jwtAuthAdminLevel(property) {
 	};
 }
 
-function jwtAuthHighLevel(property, id) {
+function jwtAuthHighLevel(property) {
 	return async (req, res, next) => {
 		const data = req[property].bearer;
-		if(id == 'params'){
-			id = req[id].id
-		} else {
-			id = req[id].userId
+		let id;
+		if(req.body.userId){
+			 id = req.body.userId
+		} else if(req.params) {
+			 ({id} = req.params);
 		}
 		
+		if(id == undefined){
+			next(boom.badRequest("invalid id"));
+		}
 		const user = await models.User.findByPk(id)
-		jwt.verify(data, conf.pkey, function (err, decoded) {
-			if (err) {
-				next(boom.unauthorized("Unathorized"));
-			}
-			if (!(decoded.auth == `${conf.authp}`)) {
-				next(boom.unauthorized("Unathorized"));
-			}
-			if(!(decoded.userId == user.id)){
-				next(boom.unauthorized("Unathorized"));
-			}
-			if(!(decoded.password == user.password)){
-				next(boom.unauthorized("Unathorized"));
-			}
-		});
+		try {
+			jwt.verify(data, conf.pkey, function (err, decoded) {
+				if (err) {
+					next(boom.unauthorized("Unathorized"));
+				}
+				if (!(decoded.auth == `${conf.authp}`)) {
+					next(boom.unauthorized("Unathorized"));
+				}
+				if (!(decoded.userId == user.id)) {
+					next(boom.unauthorized("Unathorized"));
+				}
+				if (!(decoded.password == user.password)) {
+					next(boom.unauthorized("Unathorized"));
+				}
+			});
+		} catch (error) {
+			next(boom.badRequest("Something went wrong"));
+		}
+
 		next();
 	};
 }
@@ -83,4 +92,4 @@ function headerAuth(property) {
 	};
 }
 
-module.exports = { jwtAuth, headerAuth, jwtAuthAdminLevel, jwtAuthHighLevel};
+module.exports = { jwtAuth, headerAuth, jwtAuthAdminLevel, jwtAuthHighLevel };

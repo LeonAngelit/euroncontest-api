@@ -144,7 +144,7 @@ class CountryService {
 		const users = await userService.find();
 		for (const user of users) {
 			let totalPoints = 0;
-			for (const country of user.countries){
+			for (const country of user.countries) {
 				if (country.id === user.winnerOption[0].countryId) {
 					totalPoints += parseInt(country.points + (country.points * 0.1));
 				} else {
@@ -190,7 +190,12 @@ class CountryService {
 				},);
 				if (response.status == 200) {
 					const pdfBuffer = Buffer.from(response.data);
-					await this.sendWinnerEmail(pdfBuffer, data.username, room.name, data.email);
+					try {
+						await this.sendWinnerEmail(pdfBuffer, data.username, room.name, data.email);
+					} catch (error) {
+						throw boom.gatewayTimeout("Error sending email: " + error.toString())
+					}
+
 					updatableService.set({ refresh_enabled: false });
 				}
 			}

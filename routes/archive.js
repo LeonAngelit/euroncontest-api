@@ -13,10 +13,33 @@ router.get("/", jwtAuthAdminLevel("headers"), async (req, res) => {
 });
 
 
-router.get("/users/:id", jwtAuthHighLevel("headers", "params"), async (req, res, next) => {
+router.get(
+	"/room/:roomId/:id",
+	jwtAuthHighLevel("headers"),
+	async (req, res, next) => {
+		try {
+			const { roomId, id } = req.params;
+			const room = await service.findOne(roomId);
+			const filteredUsers = room.room.users.filter(user => user.id == id);
+			if(filteredUsers.length > 0){
+				res.json(room);
+			} else {
+				res.status(403).json({
+					message: "User not autorized to see this room"
+				})
+			}
+			
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+
+router.get("/users/:id", jwtAuthHighLevel("headers"), async (req, res, next) => {
 	try {
 		const { id } = req.params;
-	const user = userService.findOne(id);
+	const user = await userService.findOne(id);
 	const rooms = await service.findByUserName(user.username);
 	res.json(rooms);
 	} catch (error) {

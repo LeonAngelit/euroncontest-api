@@ -10,6 +10,7 @@ const {
   updateRoomSchema,
   getRoomByNameSchema,
   addUserSchema,
+  removeUserSchema
 } = require('./../schemas/room.schema');
 
 router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
@@ -19,7 +20,7 @@ router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
 
 router.get(
   '/:roomId/:id',
-  jwtAuthHighLevel('headers', 'params'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(getRoomSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -59,8 +60,9 @@ router.get('/archive/export/:year', jwtAuthAdminLevel('headers'), async (req, re
 }
 );
 
-router.get('/generateRoomToken/:roomId/:id', jwtAuthHighLevel('headers', 'params'), async (req, res) => {
+router.get('/generateRoomToken/:roomId/:id', jwtAuthHighLevel('headers'), async (req, res)=> {
   const { roomId, id } = req.params;
+  const room = await service.findOne(roomId);
   filteredRoom = room.users.filter(user => user.id == id);
   if (filteredRoom.length > 0) {
     const token = await service.generateRoomToken(roomId);
@@ -71,12 +73,12 @@ router.get('/generateRoomToken/:roomId/:id', jwtAuthHighLevel('headers', 'params
 }
 );
 
-router.post('/verifyRoomToken/:id', jwtAuthHighLevel('headers', 'params'),
+router.post('/verifyRoomToken/:id', jwtAuthHighLevel('headers'),
   async (req, res, next) => {
     try {
-      const { userId } = req.params;
+      const { id } = req.params;
       const token = req.body?.token;
-      const roomId = await service.verifyRoomToken(token, userId);
+      const roomId = await service.verifyRoomToken(token, id);
       res.status(201).json(roomId);
     } catch (error) {
       next(error);
@@ -123,7 +125,7 @@ router.get('/:id/stream', async (req, res) => {
 
 router.post(
   '/login',
-  jwtAuthHighLevel('headers', 'body'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(addUserSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -138,8 +140,8 @@ router.post(
 
 router.post(
   '/remove-user',
-  jwtAuthHighLevel('headers', 'body'),
-  validatorHandler(addUserSchema, 'body'),
+  jwtAuthHighLevel('headers'),
+  validatorHandler(removeUserSchema, 'body'),
   async (req, res, next) => {
     try {
       const body = req.body;
@@ -147,13 +149,13 @@ router.post(
       res.status(204).json(rta);
     } catch (error) {
       next(error);
-    }
+    } 
   }
 );
 
 router.put(
   '/:roomId/:id',
-  jwtAuthHighLevel('headers', 'params'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(getRoomSchema, 'params'),
   validatorHandler(updateRoomSchema, 'body'),
   async (req, res, next) => {
@@ -194,7 +196,7 @@ router.patch(
 
 router.delete(
   '/:roomId/:id',
-  jwtAuthHighLevel('headers', 'params'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(getRoomSchema, 'params'),
   async (req, res, next) => {
     try {

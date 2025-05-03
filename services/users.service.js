@@ -37,12 +37,16 @@ class UserService {
 
     let tempEmail = data.email;
     data.email = null;
+    data.token = Date.now().toString();
     let newUser = await models.User.create(data);
     const token = jsonwebtoken.sign({ userId: newUser.id, email: tempEmail }, pkey, { expiresIn: "1h" });
-    await this.sendEmail(token, tempEmail);
+    try {
+      await this.sendEmail(token, tempEmail);
+    } catch (error) {
+      throw boom.gatewayTimeout("Error sending email: " + error.toString())
+    }
     data.email_sent = Date.now().toString();
-    data.token = Date.now().toString();
-    const highLevelToken = jsonwebtoken.sign({ userId: newUser.id, password: data.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
+    const highLevelToken = jsonwebtoken.sign({ userId: newUser.id, password: newUser.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
     user = await this.findOne(newUser.id);
     return { user: user, token: highLevelToken }
   }
@@ -164,18 +168,6 @@ class UserService {
       ],
       attributes: { exclude: ['password', 'email', 'email_sent', 'token'] },
     });
-
-    /* const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
-       name: "patata",
-       score: "9999",
-       date: "01/05/2025",
-       countries: ["pais 1", "pais 2", "pais 3", "pais 4", "pais 5"],
-     }, { responseType: "arraybuffer" });  // Ens
-     const pdfPath = path.join(__dirname, "temp.pdf");
-     fs.writeFileSync(pdfPath, response.data);
- 
-     await this.sendWinnerEmail(pdfPath, rta[0].username, "patata", "agleondev@gmail.com")*/
-
     return rta;
   }
 
@@ -366,7 +358,12 @@ class UserService {
     const user = await models.User.findOne({ where: { id: id } });
     if (data.email && data.email != user.email) {
       const token = jsonwebtoken.sign({ userId: user.id, email: data.email }, pkey, { expiresIn: "1h" });
-      this.sendEmail(token, data.email);
+      try {
+        this.sendEmail(token, data.email);
+      } catch (error) {
+        throw boom.gatewayTimeout("Error sending email: " + error.toString())
+      }
+
       data.email = user.email;
       data.email_sent = Date.now().toString();
     }

@@ -23,7 +23,7 @@ router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
 
 router.get(
   '/:id',
-  jwtAuthHighLevel('headers', 'params'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(getUserSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -55,7 +55,7 @@ router.get(
 
 router.get(
   '/isEmailPresent/:id',
-  jwtAuthHighLevel('headers', 'params'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(getUserSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -73,7 +73,7 @@ router.get(
 
 router.get(
   '/validateToken/:id',
-  jwtAuthHighLevel('headers', 'params'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(getUserSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -130,7 +130,7 @@ router.post(
 
 router.post(
   '/add-country',
-  jwtAuthHighLevel('headers', 'body'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(addCountrySchema, 'body'),
   async (req, res, next) => {
     try {
@@ -145,7 +145,7 @@ router.post(
 
 router.post(
   '/bulk/add-country',
-  jwtAuthHighLevel('headers', 'body'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(bulkAddCountrySchema, 'body'),
   async (req, res, next) => {
     try {
@@ -160,7 +160,7 @@ router.post(
 
 router.put(
   '/:id',
-  jwtAuthHighLevel('headers', 'params'),
+  jwtAuthHighLevel('headers'),
   validatorHandler(getUserSchema, 'params'),
   validatorHandler(updateUserSchema, 'body'),
   upload.single('image'),
@@ -206,7 +206,7 @@ router.patch(
   }
 );
 
-router.post('/updateUserEmail/:id', jwtAuthHighLevel('headers', 'params'),
+router.post('/updateUserEmail/:id', jwtAuthHighLevel('headers'),
   async (req, res, next) => {
     try {
       if (req.body?.token) {

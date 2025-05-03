@@ -11,16 +11,29 @@ class RoomService {
   constructor() { }
 
   async create(data) {
-    let room = this.findOneByName(data.name);
+    let room = await models.Room.findOne({
+      where: { name: data.name },
+    });
     if (room) {
       throw boom.conflict("Invalid room name")
     }
     const newRoom = await models.Room.create(data);
     await this.addUser({
       roomId: newRoom.id,
-      userId: newRoom.adminId,
+      userId: data.adminId
     });
     return newRoom;
+  }
+
+  async addUser(data) {
+    const newRoomUser = await models.RoomUser.create(data);
+    const room = await this.findOne(newRoomUser.roomId);
+    const user = await models.User.findByPk(newRoomUser.userId);
+    const response = {
+      room,
+      user,
+    };
+    return response;
   }
 
   async loginByRoomName(name, password, userId) {
@@ -31,17 +44,11 @@ class RoomService {
       throw boom.notFound('Room not found');
     }
     if (bcrypt.compareSync(password.split('').reverse().join(''), room.password)) {
-      const newRoomUser = await models.RoomUser.create({
+      const newRoomUser = await this.addUser({
         roomId: id,
         userId: userId
       });
-      room = await this.findOne(newRoomUser.roomId);
-      const user = await userService.findOne(newRoomUser.userId);
-      const response = {
-        room,
-        user,
-      };
-      return response;
+      return newRoomUser;
     } else {
       throw boom.unauthorized('Incorrect room name or password');
     }
@@ -53,17 +60,11 @@ class RoomService {
       throw boom.notFound('Room not found');
     }
     if (bcrypt.compareSync(password.split('').reverse().join(''), room.password)) {
-      const newRoomUser = await models.RoomUser.create({
+      const newRoomUser = await this.addUser({
         roomId: id,
         userId: userId
       });
-      room = await this.findOne(newRoomUser.roomId);
-      const user = await userService.findOne(newRoomUser.userId);
-      const response = {
-        room,
-        user,
-      };
-      return response;
+      return newRoomUser;
     } else {
       throw boom.unauthorized('Incorrect room name or password');
     }
@@ -203,7 +204,13 @@ class RoomService {
   }
 
   async update(id, data) {
-    const room = await this.findOne(id);
+    let room = await models.Room.findOne({
+      where: { name: data.name },
+    });
+    if (room) {
+      throw boom.conflict("Invalid room name")
+    }
+    room = await this.findOne(id);
     const rta = await room.update(data);
     return rta;
   }
@@ -254,17 +261,11 @@ class RoomService {
     try {
       const decoded = jsonwebtoken.verify(token, pkey);
       if (decoded.auth === authp) {
-        const newRoomUser = await models.RoomUser.create({
+        const newRoomUser = await this.addUser({
           roomId: decoded.roomId,
           userId: userId
         });
-        room = await this.findOne(newRoomUser.roomId);
-        const user = await userService.findOne(newRoomUser.userId);
-        const response = {
-          room,
-          user,
-        };
-        return response;
+        return newRoomUser;
       } else {
         throw boom.unauthorized('Invalid token');
       }
