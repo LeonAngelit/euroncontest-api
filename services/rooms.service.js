@@ -4,8 +4,7 @@ const ArchiveService = require('../services/archive.service');
 const { authp, pkey } = require('../config/config');
 const archiveService = new ArchiveService();
 const jsonwebtoken = require('jsonwebtoken');
-const UserService = require('./users.service');
-const userService = new UserService();
+const bcrypt = require("bcrypt");
 
 class RoomService {
   constructor() { }
@@ -26,6 +25,15 @@ class RoomService {
   }
 
   async addUser(data) {
+    let roomUser = await models.RoomUser.findOne({
+      where: {
+        room_id: data.roomId,
+        user_id: data.userId
+      }
+    });
+    if(roomUser){
+      throw boom.conflict('You must join a different room')
+    }
     const newRoomUser = await models.RoomUser.create(data);
     const room = await this.findOne(newRoomUser.roomId);
     const user = await models.User.findByPk(newRoomUser.userId);
@@ -39,6 +47,16 @@ class RoomService {
   async loginByRoomName(data) {
     let room = await models.Room.findOne({
       where: { name: data.roomName },
+      include: [
+        {
+          model: models.User,
+          as: 'users',
+          through: {
+            attributes: [], // exclude the join table columns
+          },
+          attributes: { exclude: ['password', 'token', 'email', 'email_sent'] },
+        },
+      ],
     });
     if (!room) {
       throw boom.notFound('Room not found');
