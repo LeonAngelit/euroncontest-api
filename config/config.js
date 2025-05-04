@@ -12,6 +12,7 @@ const config = {
   dbUrl: process.env.DATABASE_URL,
   pkey: process.env.P_KEY,
   authp: process.env.AUTH_P,
+  driveId: process.env.DRIVE_ID,
   mailServer: process.env.MAIL_SERVER,
   mailPass: process.env.MAIL_PASS,
   userMail: process.env.USER_MAIL,

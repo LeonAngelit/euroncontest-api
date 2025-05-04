@@ -44,6 +44,10 @@ const UserSchema = {
     allowNull: true,
     type: DataTypes.STRING,
   },
+  sub: {
+    allowNull: true,
+    type: DataTypes.STRING,
+  },
 };
 
 class User extends Model {

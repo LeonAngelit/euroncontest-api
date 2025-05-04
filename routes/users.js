@@ -10,6 +10,7 @@ const {
   getUserSchema,
   updateUserSchema,
   getUserByNameSchema,
+  googleLoginSchema,
   addCountrySchema,
   bulkAddCountrySchema,
 } = require('./../schemas/user.schema');
@@ -112,6 +113,23 @@ router.post(
     }
   }
 );
+
+router.post(
+  '/google-login',
+  jwtAuth('headers'),
+  validatorHandler(googleLoginSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+        user = await service.accessWithGoogle(body);
+        res.status(200).json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
 
 router.post(
   '/signup',

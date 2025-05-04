@@ -42,6 +42,12 @@ const getUserByNameSchema = Joi.object({
   password: password.required()
 });
 
+const googleLoginSchema = Joi.object({
+  clientId: Joi.string(),
+  credential: Joi.string().required(),
+  select_by: Joi.string(),
+});
+
 const addCountrySchema = Joi.object({
   userId: id.required(),
   countryId: id.required(),
@@ -60,4 +66,5 @@ module.exports = {
   getUserByNameSchema,
   addCountrySchema,
   bulkAddCountrySchema,
+  googleLoginSchema
 };

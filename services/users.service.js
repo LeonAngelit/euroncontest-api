@@ -8,6 +8,8 @@ const imagesService = new ImagesService();
 const jsonwebtoken = require('jsonwebtoken');
 const config = require('../config/config');
 const bcrypt = require("bcrypt");
+const { OAuth2Client } = require('google-auth-library');
+
 
 class UserService {
   constructor() {
@@ -52,6 +54,65 @@ class UserService {
     const highLevelToken = jsonwebtoken.sign({ userId: newUser.id, password: newUser.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
     user = await this.findOne(newUser.id);
     return { user: user, token: highLevelToken }
+  }
+
+  async accessWithGoogle(data) {
+    const client = new OAuth2Client(config.driveId);
+    const credential = data.credential;
+
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: config.driveId,
+      });
+      const payload = ticket.getPayload();
+      const { sub, email, name, picture } = payload;
+      let user = await models.User.findOne({
+        where: { email: email },
+      });
+      if (!user) {
+        let normalizedName = name.normalize("NFD") 
+        .replace(/[\u0300-\u036f]/g, "") 
+        .replaceAll(/['"`]/g, "") 
+        .replaceAll(" ", "") 
+      
+        const salt = bcrypt.genSaltSync(12);
+        const pass = bcrypt.hashSync(sub + normalizedName + config.authp, salt, null);
+        let newUserData = {
+          username: email.split("@")[0],
+          password: pass,
+          email: email,
+          sub: sub,
+          image: picture,
+          token: Date.now().toString()
+        }
+        let newUser = await models.User.create(newUserData);
+        const highLevelToken = jsonwebtoken.sign({ userId: newUser.id, password: newUser.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
+        user = await this.findOne(newUser.id);
+        return { user: user, token: highLevelToken }
+      } else {
+        
+        if (user.sub == null) {
+          let subData = {
+            sub: sub,
+          }
+          await this.update(user.id, subData);
+          const highLevelToken = jsonwebtoken.sign({ userId: user.id, password: user.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
+          user = await this.findOne(newUser.id);
+          return { user: user, token: highLevelToken }
+        } else {
+          if (user.sub != sub) {
+            throw boom.unauthorized('Invalid Google token')
+          }
+          const highLevelToken = jsonwebtoken.sign({ userId: user.id, password: user.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
+          user = await this.findOne(user.id);
+          return { user: user, token: highLevelToken }
+        }
+      }
+    }
+    catch (err) {
+      throw boom.unauthorized('There was an error during process')
+    }
   }
 
   async bulkAddCountry(data) {
