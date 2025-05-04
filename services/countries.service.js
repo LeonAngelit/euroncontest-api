@@ -154,7 +154,7 @@ class CountryService {
 			await user.update({ points: totalPoints });
 		}
 
-		if (winner == null) {
+		if (winner != null) {
 			const rooms = await roomsService.find();
 			for (const room of rooms) {
 				let data = room.users[0].dataValues;
@@ -191,7 +191,7 @@ class CountryService {
 				if (response.status == 200) {
 					const pdfBuffer = Buffer.from(response.data);
 					try {
-						await this.sendWinnerEmail(pdfBuffer, data.username, room.name, "leonangelitg@gmail.com");
+						await this.sendWinnerEmail(pdfBuffer, data.username, room.name, data.email);
 					} catch (error) {
 						throw boom.gatewayTimeout("Error sending email: " + error.toString())
 					}
