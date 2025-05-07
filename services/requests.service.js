@@ -17,7 +17,7 @@ class RequestService {
       if (data.model == "image_to_video") {
         template = config.imageToVideoTemplate;
         try {
-          requestData = this.#formatString(template, data.prompt, data.imgPath, data.prompt, data.imgPath)
+          requestData = this.#formatString(template, data.prompt, data.imgPath, data.prompt, data.imgPath, data.frames, data.frames)
         } catch (error) {
           return error;
         }
