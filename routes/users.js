@@ -241,6 +241,18 @@ router.post('/updateUserEmail/:id', jwtAuthHighLevel('headers'),
   }
 );
 
+router.post('/sendWinnerEmail', jwtAuthAdminLevel('headers'),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      const response = await service.sendWinnerCertificate(body);
+        res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 router.delete(
   '/:id',
   jwtAuth('headers'),

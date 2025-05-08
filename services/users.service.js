@@ -9,6 +9,7 @@ const jsonwebtoken = require('jsonwebtoken');
 const config = require('../config/config');
 const bcrypt = require("bcrypt");
 const { OAuth2Client } = require('google-auth-library');
+const axios = require("axios");
 
 
 class UserService {
@@ -71,11 +72,11 @@ class UserService {
         where: { email: email },
       });
       if (!user) {
-        let normalizedName = name.normalize("NFD") 
-        .replace(/[\u0300-\u036f]/g, "") 
-        .replaceAll(/['"`]/g, "") 
-        .replaceAll(" ", "") 
-      
+        let normalizedName = name.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replaceAll(/['"`]/g, "")
+          .replaceAll(" ", "")
+
         const salt = bcrypt.genSaltSync(12);
         const pass = bcrypt.hashSync(sub + normalizedName + config.authp, salt, null);
         let newUserData = {
@@ -91,7 +92,7 @@ class UserService {
         user = await this.findOne(newUser.id);
         return { user: user, token: highLevelToken }
       } else {
-        
+
         if (user.sub == null) {
           let subData = {
             sub: sub,
@@ -510,6 +511,54 @@ class UserService {
     }
   }
 
+  async sendWinnerCertificate(data) {
+    const today = new Date();
+    const formatted = new Intl.DateTimeFormat('en-GB').format(today);
+    let formattedCountries = [];
+    let countries = data.countries.map(country => {
+      return {
+        id: country.id,
+        name: country.name,
+        position: country.position,
+        points: country.points
+      }
+    });
+    countries.sort((a, b) => a.position - b.position);
+    countries.forEach(country => {
+      let baseString = `${country.name}: ${country.points} puntos`
+      if (country.position == 1) {
+        baseString += ' - país ganador'
+      }
+      if (country.id == data.winnerOption[0].countryId) {
+        baseString += ' - opción ganadora'
+      }
+      formattedCountries.push(baseString);
+    })
+    console.log(formattedCountries)
+    try {
+      const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
+        name: `${data.username}`,
+        score: `${data.points}`,
+        date: `${formatted}`,
+        countries: formattedCountries,
+      }, {
+        responseType: "arraybuffer"
+      },);
+      if (response.status == 200) {
+        const pdfBuffer = Buffer.from(response.data);
+        try {
+          await this.sendWinnerEmail(pdfBuffer, data.username, data.room, data.email);
+
+        } catch (error) {
+          throw boom.gatewayTimeout("Error sending email: " + error.toString())
+        }
+        return { message: "Winner email sent" }
+      }
+    } catch (error) {
+      throw boom.gatewayTimeout("Error sending email: " + error.toString())
+    }
+
+  }
   async isEmailSent(id) {
     const user = await models.User.findByPk(id);
     if (user) {
@@ -550,6 +599,46 @@ class UserService {
     user.destroy();
     return { id };
   }
+
+  async sendWinnerEmail(filePath, user, roomName, emailReceiver) {
+		const htmlEmailBody = `<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Confirma tu email</title>
+		</head>
+		
+		<body>
+			<p>
+				Enhorabuena ${user}! Aquí tienes tu certificado por haber ganado en la sala ${roomName}
+			</p>
+			<p>
+				Muchas gracias por haber participado!
+			</p>
+		</body>
+		</html>`
+		let data = {
+			name: "no-reply@eurocontest", // sender address
+			subject: `Enhorabuena! 🎉`, // Subject line
+			htmlBody: htmlEmailBody,
+			attachments: [
+				{
+					filename: `diploma_${user}.pdf`,
+					content: filePath,
+					contentType: "application/pdf",
+				},
+			],// html body
+		}
+		const response = await emailService.sendCongratsEmail(data, emailReceiver)
+		if (response == 1) {
+			return response
+		} else {
+			throw boom.badData({
+				message: response
+			})
+		}
+	}
 }
 
 module.exports = UserService;

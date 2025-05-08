@@ -4,13 +4,10 @@ const PuppeteerService = require("../utils/puppeteer.util");
 const UpdatableService = require("./updatable.service");
 const UserService = require("./users.service");
 const RoomsService = require("./rooms.service");
-const EmailService = require('../utils/email.util');
-const emailService = new EmailService();
 const userService = new UserService();
 const updatableService = new UpdatableService();
 const findService = new PuppeteerService();
 const roomsService = new RoomsService();
-const axios = require("axios");
 
 class CountryService {
 	constructor() {
@@ -156,50 +153,15 @@ class CountryService {
 
 		if (winner != null) {
 			const rooms = await roomsService.find();
+			let data = [];
 			for (const room of rooms) {
-				let data = room.users[0].dataValues;
-				const today = new Date();
-				const formatted = new Intl.DateTimeFormat('en-GB').format(today);
-				let formattedCountries = [];
-				let countries = data.countries.map(country => {
-					return {
-						id: country.id,
-						name: country.name,
-						position: country.position,
-						points: country.points
-					}
+				data.push({
+					...room.users[0].dataValues,
+					room: room.name
 				});
-				countries.sort((a, b) => a.position - b.position);
-				countries.forEach(country => {
-					let baseString = `${country.name}: ${country.points} puntos`
-					if (country.position == 1) {
-						baseString += ' - país ganador'
-					}
-					if (country.id == data.winnerOption[0].dataValues.countryId) {
-						baseString += ' - opción ganadora'
-					}
-					formattedCountries.push(baseString);
-				})
-				const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
-					name: `${data.username}`,
-					score: `${data.points}`,
-					date: `${formatted}`,
-					countries: formattedCountries,
-				}, {
-					responseType: "arraybuffer"
-				},);
-				if (response.status == 200) {
-					const pdfBuffer = Buffer.from(response.data);
-					try {
-						await this.sendWinnerEmail(pdfBuffer, data.username, room.name, data.email);
-					} catch (error) {
-						throw boom.gatewayTimeout("Error sending email: " + error.toString())
-					}
-
-					updatableService.set({ refresh_enabled: false });
-				}
 			}
-			return { message: "Winner emails sent" }
+			await updatableService.set({ refresh_enabled: false });
+			return { winners: data }
 		}
 		return countries;
 	}
@@ -229,46 +191,6 @@ class CountryService {
 			} catch (error) {
 				return error.message
 			}
-		}
-	}
-
-	async sendWinnerEmail(filePath, user, roomName, emailReceiver) {
-		const htmlEmailBody = `<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Confirma tu email</title>
-		</head>
-		
-		<body>
-			<p>
-				Enhorabuena ${user}! Aquí tienes tu certificado por haber ganado en la sala ${roomName}
-			</p>
-			<p>
-				Muchas gracias por haber participado!
-			</p>
-		</body>
-		</html>`
-		let data = {
-			name: "no-reply@eurocontest", // sender address
-			subject: `Enhorabuena! 🎉`, // Subject line
-			htmlBody: htmlEmailBody,
-			attachments: [
-				{
-					filename: `diploma_${user}.pdf`,
-					content: filePath,
-					contentType: "application/pdf",
-				},
-			],// html body
-		}
-		const response = await emailService.sendCongratsEmail(data, emailReceiver)
-		if (response == 1) {
-			return response
-		} else {
-			throw boom.badData({
-				message: response
-			})
 		}
 	}
 }

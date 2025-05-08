@@ -30,7 +30,7 @@ router.get(
 	}
 );
 
-router.get("/refresh/:year", jwtAuth("headers"), async (req, res, next) => {
+router.get("/refresh/:year", jwtAuthAdminLevel("headers"), async (req, res, next) => {
 	try {
 		const { year } = req.params;
 		const countries = await service.refresh(year);
