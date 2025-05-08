@@ -30,6 +30,14 @@ class RequestService {
           return error;
         }
       }
+      if (data.model == "generate_image") {
+        template = config.generateImageTemplate;
+        try {
+          requestData = this.#formatString(template, data.prompt, data.prompt)
+        } catch (error) {
+          return error;
+        }
+      }
       if (data.model == "clean") {
         try {
           requestData = "clean"
