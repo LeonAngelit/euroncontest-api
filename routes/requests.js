@@ -2,10 +2,10 @@ const express = require('express');
 const RequestService = require('../services/requests.service');
 const router = express.Router();
 const service = new RequestService();
-const { jwtAuth } = require('../midlewares/auth.handler');
+const { jwtAuthAdminLevel } = require('../midlewares/auth.handler');
 
 
-router.post('/addRequest', jwtAuth('headers'),
+router.post('/addRequest', jwtAuthAdminLevel('headers'),
   async (req, res, next) => {
     try {
       const body = req.body;
@@ -28,7 +28,7 @@ router.post('/addRequest', jwtAuth('headers'),
 
 router.delete(
   '/',
-  jwtAuth('headers'),
+  jwtAuthAdminLevel('headers'),
   async (req, res, next) => {
     try {
       const deleted = await service.delete();
