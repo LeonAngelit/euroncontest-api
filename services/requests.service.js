@@ -37,6 +37,14 @@ class RequestService {
           return error;
         }
       }
+      if (data.model == "anime_to_real") {
+        template = config.animeToRealTemplate;
+        try {
+          requestData = this.#formatString(template, data.endPercent, data.endPercent, data.strength, data.genSteps, data.genSteps, data.cfg, data.imgPath, data.imgPath, data.prompt, data.prompt)
+        } catch (error) {
+          return error;
+        }
+      }
     } else {
       return "No valid model"
     }
