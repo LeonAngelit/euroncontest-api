@@ -13,7 +13,7 @@ class RequestService {
   async create(data) {
     let template = ''
     let requestData = '';
-    if (["image_to_video", "upscale", "clean"].includes(data.model)) {
+    if (["image_to_video", "upscale", "clean", "generate_image", "anime_to_real"].includes(data.model)) {
       if (data.model == "image_to_video") {
         template = config.imageToVideoTemplate;
         try {
