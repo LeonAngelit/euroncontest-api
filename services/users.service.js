@@ -512,8 +512,7 @@ class UserService {
   }
 
   async sendWinnerCertificate(data) {
-    const today = new Date();
-    const formatted = new Intl.DateTimeFormat('en-GB').format(today);
+    const formatted = new Intl.DateTimeFormat('en-GB').format(new Date());
     let formattedCountries = [];
     let countries = data.countries.map(country => {
       return {
@@ -534,12 +533,11 @@ class UserService {
       }
       formattedCountries.push(baseString);
     })
-    console.log(formattedCountries)
     try {
       const response = await axios.post("https://certificate-generate-3jth.onrender.com/generate-pdf", {
-        name: `${data.username}`,
+        name: ` ${data.username} `,
         score: `${data.points}`,
-        date: `${formatted}`,
+        date: ` ${formatted} `,
         countries: formattedCountries,
       }, {
         responseType: "arraybuffer"
