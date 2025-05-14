@@ -105,6 +105,9 @@ class UserService {
           if (user.sub != sub) {
             throw boom.unauthorized('Invalid Google token')
           }
+          const rta = await user.update({
+            token: Date.now()
+            });
           const highLevelToken = jsonwebtoken.sign({ userId: user.id, password: user.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
           user = await this.findOne(user.id);
           return { user: user, token: highLevelToken }
