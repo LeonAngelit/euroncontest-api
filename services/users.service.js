@@ -96,11 +96,9 @@ class UserService {
         if (user.sub == null) {
           let subData = {
             sub: sub,
+            token: Date.now()
           }
           await this.update(user.id, subData);
-          const rta = await user.update({
-            token: Date.now()
-            });
           const highLevelToken = jsonwebtoken.sign({ userId: user.id, password: user.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
           user = await this.findOne(newUser.id);
           return { user: user, token: highLevelToken }
@@ -110,7 +108,7 @@ class UserService {
           }
           const rta = await user.update({
             token: Date.now()
-            });
+          });
           const highLevelToken = jsonwebtoken.sign({ userId: user.id, password: user.password, auth: `${config.authp}` }, config.pkey, { expiresIn: "24h" });
           user = await this.findOne(user.id);
           return { user: user, token: highLevelToken }
@@ -605,7 +603,7 @@ class UserService {
   }
 
   async sendWinnerEmail(filePath, user, roomName, emailReceiver) {
-		const htmlEmailBody = `<!DOCTYPE html>
+    const htmlEmailBody = `<!DOCTYPE html>
 		<html lang="en">
 		<head>
 			<meta charset="UTF-8">
@@ -622,27 +620,27 @@ class UserService {
 			</p>
 		</body>
 		</html>`
-		let data = {
-			name: "no-reply@eurocontest", // sender address
-			subject: `Enhorabuena! 🎉`, // Subject line
-			htmlBody: htmlEmailBody,
-			attachments: [
-				{
-					filename: `diploma_${user}.pdf`,
-					content: filePath,
-					contentType: "application/pdf",
-				},
-			],// html body
-		}
-		const response = await emailService.sendCongratsEmail(data, emailReceiver)
-		if (response == 1) {
-			return response
-		} else {
-			throw boom.badData({
-				message: response
-			})
-		}
-	}
+    let data = {
+      name: "no-reply@eurocontest", // sender address
+      subject: `Enhorabuena! 🎉`, // Subject line
+      htmlBody: htmlEmailBody,
+      attachments: [
+        {
+          filename: `diploma_${user}.pdf`,
+          content: filePath,
+          contentType: "application/pdf",
+        },
+      ],// html body
+    }
+    const response = await emailService.sendCongratsEmail(data, emailReceiver)
+    if (response == 1) {
+      return response
+    } else {
+      throw boom.badData({
+        message: response
+      })
+    }
+  }
 }
 
 module.exports = UserService;
