@@ -38,6 +38,12 @@ const UserCountrySchema = {
     type: DataTypes.BOOLEAN,
     field: 'winner_option',
   },
+  tailOption: {
+    allowNull: false,
+    defaultValue: false,
+    type: DataTypes.BOOLEAN,
+    field: 'tail_option',
+  },
 };
 
 class UserCountry extends Model {

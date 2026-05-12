@@ -14,6 +14,7 @@ const password = Joi.string().regex(regexPass);
 const token = Joi.string().min(8);
 const image = Joi.string();
 const winnerOption = Joi.boolean();
+const tailOption = Joi.boolean();
 const selection = Joi.array();
 const color = Joi.string();
 const email = Joi.string().email();
@@ -52,6 +53,7 @@ const addCountrySchema = Joi.object({
   userId: id.required(),
   countryId: id.required(),
   winnerOption: winnerOption,
+  tailOption: tailOption,
 });
 
 const bulkAddCountrySchema = Joi.object({

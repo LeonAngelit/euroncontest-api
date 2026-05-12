@@ -138,12 +138,25 @@ class CountryService {
 			await this.updateLinks(year);
 			await updatableService.set({ last_updated_year: parseInt(year) });
 		}
+		const maxPosition = Math.max(...countries.map(c => c.position));
 		const users = await userService.find();
 		for (const user of users) {
 			let totalPoints = 0;
+			const winnerId = user.winnerOption && user.winnerOption.length > 0 ? user.winnerOption[0].countryId : null;
+			const tailId = user.tailOption && user.tailOption.length > 0 ? user.tailOption[0].countryId : null;
+
 			for (const country of user.countries) {
-				if (country.id === user.winnerOption[0].countryId) {
-					totalPoints += parseInt(country.points + (country.points * 0.1));
+				if (country.id === winnerId) {
+					if (country.position === 1) {
+						totalPoints += parseInt(country.points + (country.points * 0.1));
+					} else {
+						totalPoints += parseInt(country.points);
+					}
+				} else if (country.id === tailId) {
+					if (country.position === maxPosition) {
+						totalPoints += parseInt(country.points);
+					}
+					// If not last position, tail option contributes 0 points
 				} else {
 					totalPoints += parseInt(country.points);
 				}

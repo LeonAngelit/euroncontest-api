@@ -122,7 +122,14 @@ class RoomService {
               as: 'winnerOption',
               where: { winnerOption: true },
               required: false,
-              attributes: { exclude: ['id', 'userId', 'winnerOption'] },
+              attributes: { exclude: ['id', 'userId', 'winnerOption', 'tailOption'] },
+            },
+            {
+              model: models.UserCountry,
+              as: 'tailOption',
+              where: { tailOption: true },
+              required: false,
+              attributes: { exclude: ['id', 'userId', 'winnerOption', 'tailOption'] },
             },
           ],
           attributes: { exclude: ['password', 'token', 'email_sent'] },
@@ -135,7 +142,7 @@ class RoomService {
       }, 'points', 'DESC']],
     });
     rooms.map(room => {
-      room.users = room.users.filter(user => user.countries.length === 5);
+      room.users = room.users.filter(user => user.countries.length === 5 || user.countries.length === 6);
     })
 
     return rooms;
@@ -164,7 +171,14 @@ class RoomService {
               as: 'winnerOption',
               where: { winnerOption: true },
               required: false,
-              attributes: { exclude: ['id', 'userId', 'winnerOption'] },
+              attributes: { exclude: ['id', 'userId', 'winnerOption', 'tailOption'] },
+            },
+            {
+              model: models.UserCountry,
+              as: 'tailOption',
+              where: { tailOption: true },
+              required: false,
+              attributes: { exclude: ['id', 'userId', 'winnerOption', 'tailOption'] },
             },
           ],
           attributes: { exclude: ['password', 'token', 'email', 'email_sent'] },
@@ -179,7 +193,7 @@ class RoomService {
     if (!room) {
       throw boom.notFound('Room not found');
     }
-    room.dataValues.users = room.users.filter(user => user.dataValues.countries.length === 5);
+    room.dataValues.users = room.users.filter(user => user.dataValues.countries.length === 5 || user.dataValues.countries.length === 6);
     return room;
   }
 
@@ -207,7 +221,14 @@ class RoomService {
               as: 'winnerOption',
               where: { winnerOption: true },
               required: false,
-              attributes: { exclude: ['id', 'userId', 'winnerOption'] },
+              attributes: { exclude: ['id', 'userId', 'winnerOption', 'tailOption'] },
+            },
+            {
+              model: models.UserCountry,
+              as: 'tailOption',
+              where: { tailOption: true },
+              required: false,
+              attributes: { exclude: ['id', 'userId', 'winnerOption', 'tailOption'] },
             },
           ],
           attributes: { exclude: ['password', 'token', 'email', 'email_sent'] },

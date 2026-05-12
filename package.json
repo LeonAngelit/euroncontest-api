@@ -10,7 +10,9 @@
 		"migration:generate": "sequelize-cli migration:generate --name",
 		"migration:run": "sequelize-cli db:migrate",
 		"migration:revert": "sequelize-cli db:migrate:undo",
-		"migration:delete": "sequelize-cli db:migrate:undo:all"
+		"migration:delete": "sequelize-cli db:migrate:undo:all",
+		"build": "npm run migration:run",
+		"vercel-build": "npm run migration:run"
 	},
 	"keywords": [],
 	"author": "Leon Angelit <leo63582@gmail.com>",
