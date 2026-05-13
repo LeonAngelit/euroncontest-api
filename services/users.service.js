@@ -167,7 +167,12 @@ class UserService {
     const user = await models.User.findByPk(data.userId);
     await user.update({ points: 0 });
 
-    if (data.selection.length == 5 || data.selection.length == 6) {
+    const CountryService = require('./countries.service');
+    const countryService = new CountryService();
+    const countries = await countryService.find();
+    const limit = countries.length > 5 ? 6 : 5;
+
+    if (data.selection.length == limit) {
       for (let i = 0; i < data.selection.length; i++) {
         let countryData = {
           userId: data.userId,
@@ -176,10 +181,10 @@ class UserService {
         if (i == 0) {
           countryData.winnerOption = true;
         }
-        if (data.selection.length == 6 && i == 5) {
+        if (limit == 6 && i == 5) {
           countryData.tailOption = true;
         }
-        temp = await this.addCountry(countryData);
+        temp = await this.addCountry(countryData, limit);
         response.push(temp);
       }
       if (response.length == data.selection.length) {
@@ -190,17 +195,17 @@ class UserService {
         );
       }
     } else {
-      throw boom.badRequest('No se han procesado los 5 o 6 países elegidos');
+      throw boom.badRequest(`No se han procesado los ${limit} países elegidos`);
     }
   }
 
-  async addCountry(data) {
+  async addCountry(data, limit) {
     let isUserCountryAdded;
     let response;
     const userCountryAdded = await models.UserCountry.findAll({
       where: { userId: data.userId },
     });
-    isUserCountryAdded = userCountryAdded.length >= 5;
+    isUserCountryAdded = userCountryAdded.length >= limit;
     const isUpdatable = await models.Updatable.findByPk(1);
     if (isUserCountryAdded && !isUpdatable.updatable) {
       throw boom.unauthorized(
