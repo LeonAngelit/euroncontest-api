@@ -2,8 +2,8 @@ const express = require('express');
 const UpdatableService = require('../services/updatable.service');
 const router = express.Router();
 const service = new UpdatableService();
-const validatorHandler = require('../midlewares/validator.handler');
-const { jwtAuthAdminLevel } = require('../midlewares/auth.handler');
+const validatorHandler = require('../middlewares/validator.handler');
+const { jwtAuthAdminLevel } = require('../middlewares/auth.handler');
 const { updateAvailableSchema } = require('./../schemas/updatable.schema');
 
 router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
@@ -23,7 +23,7 @@ router.put(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -38,7 +38,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 module.exports = router;

@@ -2,9 +2,13 @@ const express = require('express');
 const UserService = require('./../services/users.service');
 const router = express.Router();
 const service = new UserService();
-const validatorHandler = require('./../midlewares/validator.handler');
-const { jwtAuth, jwtAuthAdminLevel, jwtAuthHighLevel } = require('../midlewares/auth.handler');
-const multer = require("multer");
+const validatorHandler = require('./../middlewares/validator.handler');
+const {
+  jwtAuth,
+  jwtAuthAdminLevel,
+  jwtAuthHighLevel,
+} = require('../middlewares/auth.handler');
+const multer = require('multer');
 const {
   createUserSchema,
   getUserSchema,
@@ -15,7 +19,7 @@ const {
   bulkAddCountrySchema,
 } = require('./../schemas/user.schema');
 const upload = multer({ storage: multer.memoryStorage() });
-const config = require('../config/config')
+const config = require('../config/config');
 
 router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
   const users = await service.find();
@@ -34,7 +38,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.get(
@@ -46,12 +50,12 @@ router.get(
       const { id } = req.params;
       const response = await service.isEmailSent(id);
       res.json({
-        emailSent: response
+        emailSent: response,
       });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.get(
@@ -63,14 +67,13 @@ router.get(
       const { id } = req.params;
       const response = await service.isEmailPresent(id);
       res.json({
-        emailPresent: response
+        emailPresent: response,
       });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
-
 
 router.get(
   '/validateToken/:id',
@@ -81,14 +84,13 @@ router.get(
       const { id } = req.params;
       const response = await service.validateToken(id);
       res.json({
-        isValidToken: response
+        isValidToken: response,
       });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
-
 
 router.post(
   '/login',
@@ -97,21 +99,21 @@ router.post(
   async (req, res, next) => {
     try {
       const body = req.body;
-      if(config.emailRegex.test(body.name)){
+      if (config.emailRegex.test(body.name)) {
         user = await service.loginByEmail(body.name, body.password);
         res.json(user);
-      } else if(config.nombreUsuarioRegex.test(body.name)){
+      } else if (config.nombreUsuarioRegex.test(body.name)) {
         user = await service.loginByName(body.name, body.password);
         res.status(200).json(user);
       } else {
         res.status(400).json({
-          error: "Nombre de usuario incorrecto"
-        })
+          error: 'Nombre de usuario incorrecto',
+        });
       }
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -121,15 +123,13 @@ router.post(
   async (req, res, next) => {
     try {
       const body = req.body;
-        user = await service.accessWithGoogle(body);
-        res.status(200).json(user);
+      user = await service.accessWithGoogle(body);
+      res.status(200).json(user);
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
-
-
 
 router.post(
   '/signup',
@@ -143,7 +143,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -158,7 +158,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -173,7 +173,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.put(
@@ -197,7 +197,7 @@ router.put(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.patch(
@@ -221,10 +221,12 @@ router.patch(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
-router.post('/updateUserEmail/:id', jwtAuthHighLevel('headers'),
+router.post(
+  '/updateUserEmail/:id',
+  jwtAuthHighLevel('headers'),
   async (req, res, next) => {
     try {
       if (req.body?.token) {
@@ -232,25 +234,26 @@ router.post('/updateUserEmail/:id', jwtAuthHighLevel('headers'),
         const userId = await service.updateEmail(token);
         res.status(200).json(userId);
       } else {
-        res.status(400).json({ error: "Request body is not correct" })
+        res.status(400).json({ error: 'Request body is not correct' });
       }
-
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
-router.post('/sendWinnerEmail', jwtAuthAdminLevel('headers'),
+router.post(
+  '/sendWinnerEmail',
+  jwtAuthAdminLevel('headers'),
   async (req, res, next) => {
     try {
       const body = req.body;
       const response = await service.sendWinnerCertificate(body);
-        res.status(200).json(response);
+      res.status(200).json(response);
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.delete(
@@ -265,7 +268,7 @@ router.delete(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 module.exports = router;

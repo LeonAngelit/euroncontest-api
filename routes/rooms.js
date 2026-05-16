@@ -2,15 +2,19 @@ const express = require('express');
 const RoomService = require('../services/rooms.service');
 const router = express.Router();
 const service = new RoomService();
-const validatorHandler = require('../midlewares/validator.handler');
-const { jwtAuth, jwtAuthHighLevel, jwtAuthAdminLevel } = require('../midlewares/auth.handler');
+const validatorHandler = require('../middlewares/validator.handler');
+const {
+  jwtAuth,
+  jwtAuthHighLevel,
+  jwtAuthAdminLevel,
+} = require('../middlewares/auth.handler');
 const {
   createRoomSchema,
   getRoomSchema,
   updateRoomSchema,
   getRoomByNameSchema,
   addUserSchema,
-  removeUserSchema
+  removeUserSchema,
 } = require('./../schemas/room.schema');
 
 router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
@@ -26,17 +30,16 @@ router.get(
     try {
       const { roomId, id } = req.params;
       const room = await service.findOne(roomId);
-      filteredRoom = room.users.filter(user => user.id == id);
+      filteredRoom = room.users.filter((user) => user.id == id);
       if (filteredRoom.length > 0) {
         res.json(room);
       } else {
-        res.status(401).json({ error: "User not authorized to get this room" })
+        res.status(401).json({ error: 'User not authorized to get this room' });
       }
-
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.get(
@@ -51,29 +54,37 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
-router.get('/archive/export/:year', jwtAuthAdminLevel('headers'), async (req, res) => {
-  const { year } = req.params;
-  const rooms = await service.exportResultsToMongo(year);
-  res.json(rooms);
-}
-);
-
-router.get('/generateRoomToken/:roomId/:id', jwtAuthHighLevel('headers'), async (req, res)=> {
-  const { roomId, id } = req.params;
-  const room = await service.findOne(roomId);
-  filteredRoom = room.users.filter(user => user.id == id);
-  if (filteredRoom.length > 0) {
-    const token = await service.generateRoomToken(roomId);
-    res.json(token);
-  } else {
-    res.status(401).json({ error: "User not authorized to get this room" })
-  }
-}
+router.get(
+  '/archive/export/:year',
+  jwtAuthAdminLevel('headers'),
+  async (req, res) => {
+    const { year } = req.params;
+    const rooms = await service.exportResultsToMongo(year);
+    res.json(rooms);
+  },
 );
 
-router.post('/verifyRoomToken/:id', jwtAuthHighLevel('headers'),
+router.get(
+  '/generateRoomToken/:roomId/:id',
+  jwtAuthHighLevel('headers'),
+  async (req, res) => {
+    const { roomId, id } = req.params;
+    const room = await service.findOne(roomId);
+    filteredRoom = room.users.filter((user) => user.id == id);
+    if (filteredRoom.length > 0) {
+      const token = await service.generateRoomToken(roomId);
+      res.json(token);
+    } else {
+      res.status(401).json({ error: 'User not authorized to get this room' });
+    }
+  },
+);
+
+router.post(
+  '/verifyRoomToken/:id',
+  jwtAuthHighLevel('headers'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -83,7 +94,7 @@ router.post('/verifyRoomToken/:id', jwtAuthHighLevel('headers'),
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -98,7 +109,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.get('/:id/stream', async (req, res) => {
@@ -135,7 +146,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -149,8 +160,8 @@ router.post(
       res.status(204).json(rta);
     } catch (error) {
       next(error);
-    } 
-  }
+    }
+  },
 );
 
 router.put(
@@ -168,13 +179,13 @@ router.put(
         res.json(room);
       } else {
         res.status(403).json({
-          error: "Usuario no autorizado para realizar esta acción"
-        })
+          error: 'Usuario no autorizado para realizar esta acción',
+        });
       }
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.patch(
@@ -191,7 +202,7 @@ router.patch(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.delete(
@@ -207,14 +218,13 @@ router.delete(
         res.json(deleted);
       } else {
         res.status(403).json({
-          error: "Usuario no autorizado para realizar esta acción"
-        })
+          error: 'Usuario no autorizado para realizar esta acción',
+        });
       }
-
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 module.exports = router;

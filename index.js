@@ -9,7 +9,7 @@ const {
   errorHandler,
   boomErrorHandler,
   sequelizeError,
-} = require('./midlewares/error.handler');
+} = require('./middlewares/error.handler');
 
 app.use(express.json());
 app.use(cors());
