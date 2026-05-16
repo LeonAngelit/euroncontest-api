@@ -409,28 +409,25 @@ Sequelize migrations before deployment.
 
 ### Known Issues
 
-1. **`middlewares/` typo**: The middleware directory is misspelled (`middlewares`
-   with a single 'd'). All imports reference this path. Renaming it would
-   require updating every route and service that imports from it.
-2. **`src/` contains legacy CLI code**: The `src/` directory holds a
+1. **`src/` contains legacy CLI code**: The `src/` directory holds a
    TypeScript notes CLI (`cli.ts`, `notes.ts`, etc.) that is unrelated to the
    EuronContest API. The existing `tests/` only test this legacy CLI, not
    the API itself.
-3. **Auth middleware side effects**: `jwtAuth`, `jwtAuthHighLevel`, and
+2. **Auth middleware side effects**: `jwtAuth`, `jwtAuthHighLevel`, and
    `jwtAuthAdminLevel` call `next(boom.unauthorized(...))` on failure **but
    also call `next()`** unconditionally afterward. This means unauthorized
    requests will proceed to the handler after the error is passed. This is
    a known bug that should be fixed (missing `return` before `next(error)`).
-4. **`err instanceof` without negation**: In `errorHandler`, the check
+3. **`err instanceof` without negation**: In `errorHandler`, the check
    `!err instanceof ValidationError` uses incorrect operator precedence — it
    evaluates as `(!err) instanceof ValidationError`, always returning `false`.
-5. **`UpdatableService.block()` uses raw SQL**: The `block()` method constructs
+4. **`UpdatableService.block()` uses raw SQL**: The `block()` method constructs
    raw SQL from user input, which is a SQL injection risk.
-6. **Room SSE**: `GET /:id/stream` has no authentication and polls the
+5. **Room SSE**: `GET /:id/stream` has no authentication and polls the
    database every 60 seconds.
-7. **No API tests**: The `tests/` directory only contains tests for the legacy
+6. **No API tests**: The `tests/` directory only contains tests for the legacy
    `src/` CLI code. There are no automated tests for the API routes or services.
-8. **MySQL driver included**: `mysql2` is a dependency but the project uses
+7. **MySQL driver included**: `mysql2` is a dependency but the project uses
    PostgreSQL. This appears to be a leftover.
 
 ---

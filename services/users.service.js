@@ -16,6 +16,10 @@ class UserService {
     this.users = [];
   }
 
+  hashPassword(plainPassword) {
+    return bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(12));
+  }
+
   async create(data) {
     const isUpdatable = await models.Updatable.findByPk(1);
     if (!isUpdatable.updatable_user) {
@@ -39,6 +43,7 @@ class UserService {
 
     let tempEmail = data.email;
     data.email = null;
+    data.password = this.hashPassword(data.password);
     data.token = Date.now().toString();
     let newUser = await models.User.create(data);
     const token = jsonwebtoken.sign(
@@ -561,7 +566,7 @@ class UserService {
       throw boom.notFound('User not found');
     }
     if (
-      bcrypt.compareSync(password.split('').reverse().join(''), user.password)
+      bcrypt.compareSync(password, user.password)
     ) {
       const rta = await user.update({
         token: Date.now(),
@@ -586,7 +591,7 @@ class UserService {
       throw boom.notFound('User not found');
     }
     if (
-      bcrypt.compareSync(password.split('').reverse().join(''), user.password)
+      bcrypt.compareSync(password, user.password)
     ) {
       const rta = await user.update({
         token: Date.now(),
@@ -619,6 +624,9 @@ class UserService {
 
       data.email = user.email;
       data.email_sent = Date.now().toString();
+    }
+    if (data.password) {
+      data.password = this.hashPassword(data.password);
     }
     const rta = await user.update(data);
     return this.findOne(rta.id);

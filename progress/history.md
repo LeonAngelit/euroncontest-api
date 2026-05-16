@@ -19,3 +19,27 @@
 - **Known gap**: `src/prompts.ts` has no dedicated test (pre-existing, not part of this feature).
 
 ---
+
+## Session 2026-05-16 — Feature: add_bcrypt_backend (id 2)
+
+- **Status**: ✅ DONE
+- **Spec**: `specs/add_bcrypt_backend/` — 8 requirements (R1–R8), 6 design sections, 12 tasks
+- **What was done**:
+  1. `spec_author` drafted spec. Human approved.
+  2. `implementer` executed all 12 tasks (T1–T12):
+     - T1: Added `hashPassword(plainPassword)` method to `UserService` class
+     - T2: Updated `create()` to hash password via `this.hashPassword()` before persisting
+     - T3: Updated `loginByEmail()` — removed `password.split('').reverse().join('')`, now uses plain `password`
+     - T4: Updated `loginByName()` — same reversal removal
+     - T5: Updated `update()` — hashes `data.password` via `this.hashPassword()` if present
+     - T6: Verified `accessWithGoogle()` and `middlewares/auth.handler.js` untouched
+     - T7: `./init.sh` — all tests pass, no build errors
+     - T8–T12: Added `tests/users.service.test.js` with test cases covering R1–R6
+  3. `reviewer` first pass: CHANGES_REQUESTED — R7 lacked concrete test.
+  4. `implementer` fixed: added R7 test for `accessWithGoogle()` bcrypt password generation.
+  5. `reviewer` second pass: APPROVED. All 39 tests pass (29 existing + 10 new bcrypt tests).
+  6. All R1–R8 requirements mapped to concrete tests in traceability table.
+- **Files changed**: `services/users.service.js` (5 targeted edits), `tests/users.service.test.js` (new, 10 test cases)
+- **Files NOT changed**: `middlewares/auth.handler.js`, `accessWithGoogle()` method
+
+---
