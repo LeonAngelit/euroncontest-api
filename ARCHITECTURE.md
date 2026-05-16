@@ -58,7 +58,7 @@ deploys via **Vercel** or **Docker Compose**.
 | `db/seeders/`    | (empty) Sequelize seeder directory                                                                                                                                                                         |
 | `lib/`           | Database connection modules — `sequelize.js` (PostgreSQL via Sequelize) and `mongo.js` (MongoDB client)                                                                                                    |
 | `routes/`        | Express route groups — `index.js` (mount point `/api/eurocontest`), `users.js`, `rooms.js`, `countries.js`, `archive.js`, `getAuthToken.js`, `updatable.js`, `requests.js`                                 |
-| `services/`      | Business logic layer — class-based services (`UserService`, `RoomService`, `CountryService`, `ArchiveService`, `UpdatableService`, `RequestService`, `ImagesService`)                                      |
+| `services/`      | Business logic layer — class-based services (`UserService`, `RoomService`, `CountryService`, `ArchiveService`, `UpdatableService`, `RequestService`, `ImagesService`). `UserService` and `RoomService` both hash passwords with bcrypt (`hashSync`, 12 salt rounds) before storage and verify with `compareSync`.                                      |
 | `schemas/`       | Joi validation schemas — `user.schema.js`, `room.schema.js`, `country.schema.js`, `updatable.schema.js`                                                                                                    |
 | `middlewares/`   | Express middleware — `auth.handler.js` (JWT auth functions), `error.handler.js` (error pipeline), `validator.handler.js` (Joi validation). **Note: directory is misspelled as `middlewares` (single 'd')** |
 | `utils/`         | Utility modules — `email.util.js` (nodemailer wrapper class), `puppeteer.util.js` (web scraping for country data)                                                                                          |
@@ -144,6 +144,12 @@ All routes are mounted under **`/api/eurocontest`**.
 | DELETE | `/:id`                   | `jwtAuth`           | Delete a user by ID                            |
 
 ### Rooms (`/api/eurocontest/rooms`)
+
+Room passwords are stored as **bcrypt hashes** using `bcrypt.hashSync` with 12
+salt rounds (`RoomService.hashPassword()`). On login, passwords are verified
+with `bcrypt.compareSync`. A backward-compatible fallback (`plain === stored`)
+allows existing rooms created before this feature — which still have
+plain-text passwords — to continue working until administrators update them.
 
 | Method | Path                             | Auth                | Description                                     |
 | ------ | -------------------------------- | ------------------- | ----------------------------------------------- |
@@ -251,10 +257,12 @@ All routes are mounted under **`/api/eurocontest`**.
 | ---------- | ------- | ------------------------------------------------------ |
 | `id`       | INTEGER | PK, auto-increment                                     |
 | `name`     | STRING  | NOT NULL, UNIQUE                                       |
-| `password` | STRING  | NOT NULL                                               |
+| `password` | STRING  | NOT NULL — stored as bcrypt hash (12 salt rounds)      |
 | `admin_id` | INTEGER | FK → `users.id`, ON UPDATE CASCADE, ON DELETE SET NULL |
 
-> `timestamps: false`
+> `timestamps: false`. Room passwords are hashed with `bcrypt.hashSync` via
+> `RoomService.hashPassword()` before storage. Login verifies with
+> `bcrypt.compareSync`, with a plain-text fallback for backward compatibility.
 
 #### `rooms_users` (junction table)
 
@@ -429,6 +437,13 @@ Sequelize migrations before deployment.
    `src/` CLI code. There are no automated tests for the API routes or services.
 7. **MySQL driver included**: `mysql2` is a dependency but the project uses
    PostgreSQL. This appears to be a leftover.
+8. **Room password backward compatibility**: `RoomService.loginByRoomName()`
+   and `RoomService.loginById()` accept both bcrypt-hashed and plain-text
+   stored passwords via the fallback `bcrypt.compareSync(pass, stored) ||
+   stored === pass`. This allows rooms created before the bcrypt feature to
+   keep working. Plain-text passwords should be considered deprecated — they
+   will be replaced by bcrypt hashes whenever a room is created or its
+   password is updated.
 
 ---
 

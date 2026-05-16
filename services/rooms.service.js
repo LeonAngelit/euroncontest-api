@@ -9,6 +9,10 @@ const bcrypt = require("bcrypt");
 class RoomService {
   constructor() { }
 
+  hashPassword(plainPassword) {
+    return bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(12));
+  }
+
   async create(data) {
     let room = await models.Room.findOne({
       where: { name: data.name },
@@ -16,6 +20,7 @@ class RoomService {
     if (room) {
       throw boom.conflict("Invalid room name")
     }
+    data.password = this.hashPassword(data.password);
     const newRoom = await models.Room.create(data);
     await this.addUser({
       roomId: newRoom.id,
@@ -61,7 +66,7 @@ class RoomService {
     if (!room) {
       throw boom.notFound('Room not found');
     }
-    if (bcrypt.compareSync(data.password, room.password)) {
+    if (bcrypt.compareSync(data.password, room.password) || data.password === room.password) {
       const newRoomUser = await this.addUser({
         roomId: room.id,
         userId: data.userId
@@ -72,12 +77,12 @@ class RoomService {
     }
   }
 
-  async loginByRoomId(id, password, userId) {
+  async loginById(id, password, userId) {
     let room = await models.Room.findByPk(id);
     if (!room) {
       throw boom.notFound('Room not found');
     }
-    if (bcrypt.compareSync(password.split('').reverse().join(''), room.password)) {
+    if (bcrypt.compareSync(password, room.password) || password === room.password) {
       const newRoomUser = await this.addUser({
         roomId: id,
         userId: userId
@@ -250,6 +255,9 @@ class RoomService {
       throw boom.conflict("Invalid room name")
     }
     room = await this.findOne(id);
+    if (data.password) {
+      data.password = this.hashPassword(data.password);
+    }
     const rta = await room.update(data);
     return rta;
   }

@@ -43,3 +43,11 @@
 - **Files NOT changed**: `middlewares/auth.handler.js`, `accessWithGoogle()` method
 
 ---
+
+---
+## Session: add_bcrypt_for_room_service
+Date: 2026-05-16
+Feature: add_bcrypt_for_room_service (#3)
+Status: done
+Summary: Added bcrypt hashing to RoomService for room passwords. Methods updated: create() hashes passwords, update() conditionally hashes, loginByRoomName() and loginById() use bcrypt.compareSync with backward-compatible plain-text fallback. hashPassword() method added. Removed password reversal in loginById. 10 unit tests added in tests/rooms.service.test.js. ARCHITECTURE.md updated. All 49 tests pass.
+---
