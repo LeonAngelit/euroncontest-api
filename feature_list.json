@@ -57,6 +57,21 @@
       ],
       "sdd": true,
       "status": "done"
+    },
+    {
+      "id": 4,
+      "name": "change_auth_p_variable_to_already_hashed",
+      "title": "change the auth_p variable to an already hashed variable",
+      "description": "Instead of storing the auth_p as plain text in .env, change it to an already hashed variable. The current env variable is just plain text, but it should be an already hashed variable using bcrypt. The variable will come from the frontend as plain text",
+      "acceptance": [
+        "Instead of a string, the .env variable should contain a hashed string",
+        "The auth_p should be hashed using bcrypt",
+        "The backend should validate the auth_p env variable",
+        "Unit tests should be updated to reflect the changes",
+        "ARCHITECTURE.md should be updated to reflect the changes"
+      ],
+      "sdd": true,
+      "status": "done"
     }
   ]
 }

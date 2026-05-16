@@ -3,12 +3,12 @@ const config = require('../config/config');
 
 const regexPass = config.passwordRegex;
 const userNameRegex = config.nombreUsuarioRegex;
-const emailRegex = config.emailRegex
+const emailRegex = config.emailRegex;
 
 const id = Joi.number();
 const name = Joi.alternatives().try(
   Joi.string().pattern(userNameRegex),
-  Joi.string().pattern(emailRegex)
+  Joi.string().pattern(emailRegex),
 );
 const password = Joi.string().regex(regexPass);
 const token = Joi.string().min(8);
@@ -22,7 +22,7 @@ const email = Joi.string().email();
 const createUserSchema = Joi.object({
   username: name.required(),
   password: password.required(),
-  email: email.required()
+  email: email.required(),
 });
 
 const updateUserSchema = Joi.object({
@@ -40,11 +40,12 @@ const getUserSchema = Joi.object({
 
 const getUserByNameSchema = Joi.object({
   name: name.required(),
-  password: password.required()
+  password: password.required(),
 });
 
 const googleLoginSchema = Joi.object({
   clientId: Joi.string(),
+  client_id: Joi.string(),
   credential: Joi.string().required(),
   select_by: Joi.string(),
 });
@@ -68,5 +69,5 @@ module.exports = {
   getUserByNameSchema,
   addCountrySchema,
   bulkAddCountrySchema,
-  googleLoginSchema
+  googleLoginSchema,
 };

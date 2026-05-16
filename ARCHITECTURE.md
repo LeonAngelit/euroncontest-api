@@ -103,7 +103,7 @@ Express (index.js)
 | `jwtAuth`           | Verifies a JWT token in `req.headers.bearer` contains the correct `auth` claim                                                                     | Endpoints requiring a logged-in user (signup, login, basic CRUD)                  |
 | `jwtAuthHighLevel`  | Verifies JWT + checks that `decoded.userId` and `decoded.password` match a real user in DB; obtains user ID from `req.params` or `req.body.userId` | Endpoints modifying user-owned resources (update profile, room operations)        |
 | `jwtAuthAdminLevel` | Verifies JWT + ensures the token's `userId` matches the admin user from the `updatable` table (row id=1)                                           | Admin-only endpoints (list all users/rooms, refresh data, manage updatable flags) |
-| `headerAuth`        | Compares `req.headers.authorization` against `config.authp` using `bcrypt.compareSync`                                                             | `GET /api/eurocontest/getAuthToken` — initial token acquisition                   |
+| `headerAuth`        | Verifies `req.headers.authorization` (plain-text) against the bcrypt-hashed `config.authp` using `bcrypt.compareSync(plaintext, hash)` | `GET /api/eurocontest/getAuthToken` — initial token acquisition                   |
 
 ### Error-Handling Pipeline
 
@@ -337,7 +337,7 @@ All secrets and configuration come from environment variables loaded via
 | `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_NAME`, `DB_PORT`               | PostgreSQL connection parts                                                  |
 | `DATABASE_URL`                                                          | Full PostgreSQL connection URL (preferred)                                   |
 | `P_KEY`                                                                 | JWT signing key                                                              |
-| `AUTH_P`                                                                | Master auth phrase (used in `headerAuth` and JWT `auth` claim)               |
+| `AUTH_P`                                                                | Bcrypt-hashed master auth phrase. The server validates on startup that this is a valid bcrypt hash (`$2[aby]$NN$...`). The frontend sends the plain-text password; the backend verifies with `bcrypt.compareSync(plaintext, config.authp)`. The JWT `auth` claim carries this hashed value. |
 | `DRIVE_ID`                                                              | Google OAuth client ID                                                       |
 | `MAIL_SERVER`, `MAIL_PASS`, `USER_MAIL`                                 | Nodemailer SMTP config                                                       |
 | `CONFIRM_EMAIL_URL`                                                     | Base URL for email confirmation links                                        |

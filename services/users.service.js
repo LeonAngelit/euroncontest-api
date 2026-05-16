@@ -566,7 +566,7 @@ class UserService {
       throw boom.notFound('User not found');
     }
     if (
-      bcrypt.compareSync(password, user.password)
+      bcrypt.compareSync(password.split('').reverse().join(''), user.password)
     ) {
       const rta = await user.update({
         token: Date.now(),
@@ -591,7 +591,7 @@ class UserService {
       throw boom.notFound('User not found');
     }
     if (
-      bcrypt.compareSync(password, user.password)
+      bcrypt.compareSync(password.split('').reverse().join(''), user.password)
     ) {
       const rta = await user.update({
         token: Date.now(),

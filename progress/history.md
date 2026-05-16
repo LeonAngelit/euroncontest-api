@@ -49,5 +49,11 @@
 Date: 2026-05-16
 Feature: add_bcrypt_for_room_service (#3)
 Status: done
-Summary: Added bcrypt hashing to RoomService for room passwords. Methods updated: create() hashes passwords, update() conditionally hashes, loginByRoomName() and loginById() use bcrypt.compareSync with backward-compatible plain-text fallback. hashPassword() method added. Removed password reversal in loginById. 10 unit tests added in tests/rooms.service.test.js. ARCHITECTURE.md updated. All 49 tests pass.
+Summary: Added bcrypt hashing to RoomService for room passwords. Methods updated: create() hashes passwords, update() conditionally hashes, loginByRoomName() and loginById() use bcrypt.compareSync with backward-compatible plain-text fallback. hashPassword() method added. Removed password reversal in loginById. 10 unit tests added in tests/rooms.service.test.js. ARCHITECTURE.md updated. ---
+
+## Session: change_auth_p_variable_to_already_hashed
+Date: 2026-05-16
+Feature: change_auth_p_variable_to_already_hashed (#4)
+Status: done
+Summary: Changed AUTH_P from plain-text to pre-hashed bcrypt value in .env. Added validateAuthP() startup validation in config/config.js (exits with code 1 if invalid). Fixed headerAuth argument order: bcrypt.compareSync(data, config.authp). Created tests/auth.handler.test.js with 18 tests (headerAuth verification, startup validation, JWT auth claim generation R3, JWT auth claim verification R4, UpdatableService stores hashed value R6, migration produces valid hash R10, idempotency check R11). Created .env.example with AUTH_P hashing instructions. Updated ARCHITECTURE.md. Migrated AUTH_P in .env from "AG-LE0N-635822320-PS" to bcrypt hash. All 11 requirements (R1–R11) covered with concrete tests. All 16 tasks (T1–T16) completed. All 67 tests pass. Reviewer: APPROVED.
 ---

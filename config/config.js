@@ -1,5 +1,17 @@
 require('dotenv').config();
 
+const bcryptHashRegex = /^\$2[aby]\$\d{2}\$.+/;
+
+function validateAuthP() {
+  const authP = process.env.AUTH_P;
+  if (!authP || !bcryptHashRegex.test(authP)) {
+    console.error('FATAL: AUTH_P is missing or not a valid bcrypt hash. It must match the pattern $2[aby]$NN$...');
+    process.exit(1);
+  }
+}
+
+validateAuthP();
+
 const config = {
   env: process.env.NODE_ENV || 'dev',
   isProd: process.env.NODE_ENV === 'production',

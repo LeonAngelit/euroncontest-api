@@ -85,7 +85,7 @@ function jwtAuthHighLevel(property) {
 function headerAuth(property) {
 	return (req, res, next) => {
 		const data = req[property].authorization;
-		if (!bcrypt.compareSync(config.authp, data)) {
+		if (!bcrypt.compareSync(data, config.authp)) {
 			next(boom.unauthorized("Unathorized"));
 		}
 		next();
