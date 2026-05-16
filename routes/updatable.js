@@ -8,6 +8,10 @@ const { updateAvailableSchema } = require('./../schemas/updatable.schema');
 
 router.get('/', jwtAuthAdminLevel('headers'), async (req, res) => {
   const updatable = await service.find();
+  updatable.master_password = await updatable.master_password
+    .split('')
+    .reverse()
+    .join('');
   res.json(updatable);
 });
 
