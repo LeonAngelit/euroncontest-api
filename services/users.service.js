@@ -180,7 +180,7 @@ class UserService {
     });
     const isUserCountryAdded = userCountryAdded.length >= limit;
     const isUpdatable = await models.Updatable.findByPk(1);
-    
+
     if (isUserCountryAdded && !isUpdatable.updatable) {
       throw boom.unauthorized(
         'Actualmente no se pueden actualizar las opciones, mucha suerte!',
@@ -223,66 +223,66 @@ class UserService {
 
     try {
       if (data.winnerOption) {
-          const winnerOption = await models.UserCountry.findOne({
-            where: {
-              userId: data.userId,
-              winnerOption: true,
-            },
-          });
-          if (winnerOption) {
-            throw boom.unauthorized(
-              'No se puede tener más de una opción ganadora',
-            );
-          }
-        }
-        if (data.tailOption) {
-          const tailOption = await models.UserCountry.findOne({
-            where: {
-              userId: data.userId,
-              tailOption: true,
-            },
-          });
-          if (tailOption) {
-            throw boom.unauthorized(
-              'No se puede tener más de una opción de cola',
-            );
-          }
-        }
-        const newUserCountry = await models.UserCountry.create(data);
-        const user = await models.User.findByPk(newUserCountry.userId, {
-          attributes: { exclude: ['password', 'token', 'email_sent'] },
+        const winnerOption = await models.UserCountry.findOne({
+          where: {
+            userId: data.userId,
+            winnerOption: true,
+          },
         });
-        const country = await models.Country.findByPk(newUserCountry.countryId);
-        const allCountries = await models.Country.findAll({
-          attributes: ['position'],
+        if (winnerOption) {
+          throw boom.unauthorized(
+            'No se puede tener más de una opción ganadora',
+          );
+        }
+      }
+      if (data.tailOption) {
+        const tailOption = await models.UserCountry.findOne({
+          where: {
+            userId: data.userId,
+            tailOption: true,
+          },
         });
-        const maxPosition = Math.max(...allCountries.map((c) => c.position));
+        if (tailOption) {
+          throw boom.unauthorized(
+            'No se puede tener más de una opción de cola',
+          );
+        }
+      }
+      const newUserCountry = await models.UserCountry.create(data);
+      const user = await models.User.findByPk(newUserCountry.userId, {
+        attributes: { exclude: ['password', 'token', 'email_sent'] },
+      });
+      const country = await models.Country.findByPk(newUserCountry.countryId);
+      const allCountries = await models.Country.findAll({
+        attributes: ['position'],
+      });
+      const maxPosition = Math.max(...allCountries.map((c) => c.position));
 
-        let pointsToAdd = 0;
-        if (data.winnerOption) {
-          if (country.position === 1) {
-            pointsToAdd = parseInt(country.points + country.points * 0.1);
-          } else {
-            pointsToAdd = parseInt(country.points);
-          }
-        } else if (data.tailOption) {
-          if (country.position === maxPosition) {
-            pointsToAdd = parseInt(country.points);
-          }
+      let pointsToAdd = 0;
+      if (data.winnerOption) {
+        if (country.position === 1) {
+          pointsToAdd = parseInt(country.points + country.points * 0.1);
         } else {
           pointsToAdd = parseInt(country.points);
         }
-
-        await user.update({
-          points: user.points + pointsToAdd,
-        });
-        response = {
-          user,
-          country,
-        };
-      } catch (error) {
-        return error;
+      } else if (data.tailOption) {
+        if (country.position === maxPosition) {
+          pointsToAdd = parseInt(country.points);
+        }
+      } else {
+        pointsToAdd = parseInt(country.points);
       }
+
+      await user.update({
+        points: user.points + pointsToAdd,
+      });
+      response = {
+        user,
+        country,
+      };
+    } catch (error) {
+      return error;
+    }
 
     return response;
   }
