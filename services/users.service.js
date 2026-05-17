@@ -212,7 +212,7 @@ class UserService {
     });
     isUserCountryAdded = userCountryAdded.length >= limit;
     const isUpdatable = await models.Updatable.findByPk(1);
-    if (isUserCountryAdded && !isUpdatable.updatable) {
+    if (!isUpdatable.updatable) {
       throw boom.unauthorized(
         'Actualmente no se pueden actualizar las opciones, mucha suerte!',
       );
