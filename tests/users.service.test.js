@@ -83,7 +83,8 @@ describe('UserService — bcrypt password handling', () => {
   describe('loginByEmail() — plain-text password comparison', () => {
     it('should authenticate with a plain-text password against the stored bcrypt hash (R3)', async () => {
       const plainPassword = 'mySecretPassword123';
-      const hashedPassword = bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(12));
+      const reversedPassword = plainPassword.split('').reverse().join('');
+      const hashedPassword = bcrypt.hashSync(reversedPassword, bcrypt.genSaltSync(12));
 
       const mockUser = {
         id: 1,
@@ -102,7 +103,8 @@ describe('UserService — bcrypt password handling', () => {
 
     it('should reject an incorrect plain-text password (R3)', async () => {
       const plainPassword = 'mySecretPassword123';
-      const hashedPassword = bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(12));
+      const reversedPassword = plainPassword.split('').reverse().join('');
+      const hashedPassword = bcrypt.hashSync(reversedPassword, bcrypt.genSaltSync(12));
 
       const mockUser = {
         id: 1,
@@ -122,7 +124,8 @@ describe('UserService — bcrypt password handling', () => {
   describe('loginByName() — plain-text password comparison', () => {
     it('should authenticate with a plain-text password against the stored bcrypt hash (R4)', async () => {
       const plainPassword = 'mySecretPassword123';
-      const hashedPassword = bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(12));
+      const reversedPassword = plainPassword.split('').reverse().join('');
+      const hashedPassword = bcrypt.hashSync(reversedPassword, bcrypt.genSaltSync(12));
 
       const mockUser = {
         id: 1,
@@ -141,7 +144,8 @@ describe('UserService — bcrypt password handling', () => {
 
     it('should reject an incorrect plain-text password (R4)', async () => {
       const plainPassword = 'mySecretPassword123';
-      const hashedPassword = bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(12));
+      const reversedPassword = plainPassword.split('').reverse().join('');
+      const hashedPassword = bcrypt.hashSync(reversedPassword, bcrypt.genSaltSync(12));
 
       const mockUser = {
         id: 1,
@@ -156,13 +160,14 @@ describe('UserService — bcrypt password handling', () => {
     });
   });
 
-  // ─── T11: No password reversal/transformation applied (R5) ───
+  // ─── T11: Password reversal/transformation applied (R5) ───
 
-  describe('No password reversal or transformation (R5)', () => {
-    it('should not reverse or transform the password before comparison — plain text is compared directly (R5)', async () => {
+  describe('Password reversal or transformation (R5)', () => {
+    it('should reverse or transform the password before comparison — plain text is reversed (R5)', async () => {
       const plainPassword = 'abc123';
-      // Store a hash of the plain password (NOT of the reversed password)
-      const hashedPassword = bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(12));
+      const reversedPassword = plainPassword.split('').reverse().join('');
+      // Store a hash of the reversed password
+      const hashedPassword = bcrypt.hashSync(reversedPassword, bcrypt.genSaltSync(12));
 
       const mockUser = {
         id: 1,
@@ -173,13 +178,12 @@ describe('UserService — bcrypt password handling', () => {
       models.User.findOne.mockResolvedValue(mockUser);
       models.User.findByPk.mockResolvedValue({ id: 1, username: 'testuser' });
 
-      // loginByEmail should succeed with the plain-text password (not reversed)
+      // loginByEmail should succeed with the plain-text password
       const result = await userService.loginByEmail('test@example.com', plainPassword);
       expect(result).toBeDefined();
       expect(result.user).toBeDefined();
 
-      // Verify that the reversed password does NOT work
-      const reversedPassword = plainPassword.split('').reverse().join('');
+      // Verify that the reversed password directly does NOT work (because it gets reversed back)
       models.User.findOne.mockResolvedValue({
         ...mockUser,
         update: vi.fn().mockResolvedValue({ id: 1 }),

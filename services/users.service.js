@@ -166,9 +166,7 @@ class UserService {
   async bulkAddCountry(data) {
     let response = [];
     let temp;
-    await models.UserCountry.destroy({
-      where: { userId: data.userId },
-    });
+
     const user = await models.User.findByPk(data.userId);
     await user.update({ points: 0 });
 
@@ -176,6 +174,22 @@ class UserService {
     const countryService = new CountryService();
     const countries = await countryService.find();
     const limit = countries.length > 5 ? 6 : 5;
+
+    const userCountryAdded = await models.UserCountry.findAll({
+      where: { userId: data.userId },
+    });
+    const isUserCountryAdded = userCountryAdded.length >= limit;
+    const isUpdatable = await models.Updatable.findByPk(1);
+    
+    if (isUserCountryAdded && !isUpdatable.updatable) {
+      throw boom.unauthorized(
+        'Actualmente no se pueden actualizar las opciones, mucha suerte!',
+      );
+    }
+
+    await models.UserCountry.destroy({
+      where: { userId: data.userId },
+    });
 
     if (data.selection.length == limit) {
       for (let i = 0; i < data.selection.length; i++) {
@@ -205,26 +219,10 @@ class UserService {
   }
 
   async addCountry(data, limit) {
-    let isUserCountryAdded;
     let response;
-    const userCountryAdded = await models.UserCountry.findAll({
-      where: { userId: data.userId },
-    });
-    isUserCountryAdded = userCountryAdded.length >= limit;
-    const isUpdatable = await models.Updatable.findByPk(1);
-    if (isUserCountryAdded && !isUpdatable.updatable) {
-      throw boom.unauthorized(
-        'Actualmente no se pueden actualizar las opciones, mucha suerte!',
-      );
-    } else {
-      if (isUserCountryAdded) {
-        await models.UserCountry.destroy({
-          where: { userId: data.userId },
-        });
-      }
 
-      try {
-        if (data.winnerOption) {
+    try {
+      if (data.winnerOption) {
           const winnerOption = await models.UserCountry.findOne({
             where: {
               userId: data.userId,
@@ -285,7 +283,6 @@ class UserService {
       } catch (error) {
         return error;
       }
-    }
 
     return response;
   }
